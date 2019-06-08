@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <iostream>
+
+using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Library");
 
     ///Columnas
-    Table (1,1,0,0,1,1);
+    Table (1,1,1,1,1,1);
 }
 
 MainWindow::~MainWindow()
@@ -25,7 +28,7 @@ void MainWindow::Table(int N, int At, int An, int T, int D, int L){
     QStringList titulos;
 
     col=0;
-    fil=13;
+    fil=20;
 
     ///Cantidad de columnas
     if (N==1){
@@ -82,6 +85,28 @@ void MainWindow::Table(int N, int At, int An, int T, int D, int L){
 
 }
 
+void MainWindow::funcionInsert(string comando)
+{
+    cout << comando << endl;
+}
+
+void MainWindow::funcionSelect(string comando)
+{
+    cout << comando << endl;
+}
+
+void MainWindow::funcionUpdate(string comando)
+{
+    cout << comando << endl;
+}
+
+void MainWindow::funcionDelete(string comando)
+{
+    cout << comando << endl;
+}
+
+///BOTONES
+
 void MainWindow::on_BotonImg_clicked()
 {
     ///Agregra a la listViewWig
@@ -103,3 +128,30 @@ void MainWindow::on_BotonGal_clicked()
 {
     ui->listWidgetGaleria->addItem("    "+ui->galeria->text());
 }
+
+void MainWindow::on_BotonEJECUTAR_clicked()
+{
+    string comando = ui->LineaCMD->toPlainText().toStdString();
+    string subs = comando.substr(0,7);
+    string cmd = comando.substr(7);
+    if (subs.compare("INSERT ") == 0 || subs.compare("insert ") == 0){
+        cout << "Funcion INSERT" << endl;
+        funcionInsert(cmd);
+        ui->LineaCMD->clear();
+    }else if (subs.compare("SELECT ") == 0 || subs.compare("select ") == 0){
+        cout << "Funcion SELECT" << endl;
+        funcionSelect(cmd);
+        ui->LineaCMD->clear();
+    }else if (subs.compare("UPDATE ") == 0 || subs.compare("update ") == 0){
+        cout << "Funcion UPDATE" << endl;
+        funcionUpdate(cmd);
+        ui->LineaCMD->clear();
+    }else if (subs.compare("DELETE ") == 0 || subs.compare("delete ") == 0){
+        cout << "Funcion DELETE" << endl;
+        funcionDelete(cmd);
+        ui->LineaCMD->clear();
+    }else {
+        cout << "Syntax error" << endl;
+    }
+}
+

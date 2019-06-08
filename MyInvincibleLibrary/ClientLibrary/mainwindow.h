@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <iostream>
+
+using namespace std;
 
 namespace Ui {
 class MainWindow;
@@ -22,12 +25,18 @@ private slots:
 
     void on_BotonGal_clicked();
 
+    void on_BotonEJECUTAR_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     ///Cantidad de columnas
     int num,num2,col,fil;
     int Nombre,Autor,Year,Size,Descripcion,Link;
+    void funcionInsert(string comando);
+    void funcionSelect(string comando);
+    void funcionUpdate(string comando);
+    void funcionDelete(string comando);
 };
 
 #endif // MAINWINDOW_H
