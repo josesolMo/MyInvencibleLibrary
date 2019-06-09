@@ -3,6 +3,22 @@
 
 #include <QMainWindow>
 #include <iostream>
+#include <stdio.h>
+#include <json-c/json.h>
+#include <json-c/debug.h>
+#include <json-c/json_object.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <cstdlib>
+#include <strings.h>
+#include <unistd.h>
+#include <cstring>
+
+#define PORT 3550
+#define MAXDATASIZE 1000
 
 using namespace std;
 
@@ -19,6 +35,8 @@ public:
     ~MainWindow();
 
     void Table(int N, int At, int An, int T, int D, int L);
+
+    int sendJSON(string KEY, string data);
 
 private slots:
     void on_BotonImg_clicked();
@@ -37,6 +55,11 @@ private:
     void funcionSelect(string comando);
     void funcionUpdate(string comando);
     void funcionDelete(string comando);
+
+    string insertD;
+    string selectD;
+    string deleteD;
+    string updateD;
 };
 
 #endif // MAINWINDOW_H
