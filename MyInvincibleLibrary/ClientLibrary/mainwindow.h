@@ -7,6 +7,9 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QPixmap>
+#include <string>
+#include <cstdlib>
+#include <cstring>
 
 using namespace std;
 
@@ -23,6 +26,8 @@ public:
     ~MainWindow();
 
     void Table(int N, int At, int An, int T, int D, int L);
+    string BMPtoBinaryData(string directory);
+    string decimalToBinary(int d);
 
 private slots:
     void on_BotonImg_clicked();
@@ -44,6 +49,10 @@ private:
 
     ///La ventana de la imagen
     QGraphicsScene* VentanaImagen;
+
+    ///Instancia estática del contenedor del BinaryData
+    string binaryData;
+
 
 };
 

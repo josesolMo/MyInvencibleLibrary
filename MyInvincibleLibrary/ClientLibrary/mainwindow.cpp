@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ///Columnas
     Table (1,1,1,1,1,1);
+
 }
 
 MainWindow::~MainWindow()
@@ -110,9 +111,13 @@ void MainWindow::on_BotonImg_clicked()
 
         VentanaImagen->addPixmap(*Imag);
 
-        cout << imagen.toStdString() << endl;
-
+        ///Direccion de la imagen seleccionada
         string DireccionImagen = imagen.toStdString();
+
+        ///Se crea el BinaryData
+        BMPtoBinaryData(DireccionImagen);
+        //cout<<binaryData<<endl;
+
         int p;
 
         for (int i=0; i<DireccionImagen.length();i++){
@@ -133,8 +138,6 @@ void MainWindow::on_BotonImg_clicked()
             }
 
         }
-
-        ui->comboBoxGalerias->lineEdit();
 
         ///Agregra a la listViewWig
         /*for (int i=1;i<=3;i++){
@@ -158,3 +161,87 @@ void MainWindow::on_BotonGal_clicked()
     }
     ui->galeria->setText("");
 }
+
+
+
+/**
+ * Convierte un numero decimal a binario.
+ * @param d
+ * @return binary
+ */
+string MainWindow::decimalToBinary(int d) {
+
+    int bin = 0;
+    int i = 1;
+
+    while(d > 0) {
+
+        bin += (d % 2) * i;
+        d /= 2;
+        i *= 10;
+
+    }
+
+    ///Lo convierte a string
+    QString bb = QString::number(bin);
+    string b = bb.toStdString();
+
+    int len = b.length();
+
+    ///Para hacer que siempre tengan 8 digitos
+    if (len != 8) {
+        int z = 8 - len;
+        while (z > 0) {
+            b = "0" + b;
+            z--;
+        }
+    }
+
+    //cout << b << endl;
+
+    return b;
+
+}
+
+/**
+ * Hace una lectura de los bytes de la imagen .bmp y guarda cada uno, en binario.
+ * @return bitString
+ */
+string MainWindow::BMPtoBinaryData(string directory) {
+
+    ///Variables para el recorrido
+    int byteValue;
+    int index = 0;
+
+    ///Para abrir la imagen
+    FILE *file;
+    file = fopen(directory.c_str(), "rb");
+
+
+    if (file != NULL) {
+
+        while (byteValue != EOF) {
+            if (index >= 0) {
+
+                byteValue = fgetc(file);
+
+                binaryData += decimalToBinary(byteValue);
+
+            }
+            index++;
+        }
+
+        fclose(file);
+
+    } else {
+
+        printf("\nFile not found.");
+
+        return "";
+
+    }
+
+    return binaryData;
+
+}
+
