@@ -95,11 +95,17 @@ void MainWindow::on_BotonImg_clicked()
 
     }*/
 
-    ui->listWidgetGaleria->addItem("            "+ui->imagen->text());
+    if (ui->imagen->text()!=0){
+
+        ui->listWidgetGaleria->addItem("            "+ui->imagen->text());
+
+    }
 
 }
 
 void MainWindow::on_BotonGal_clicked()
 {
-    ui->listWidgetGaleria->addItem("    "+ui->galeria->text());
+    if (ui->galeria->text()!=0){
+        ui->listWidgetGaleria->addItem("    "+ui->galeria->text());
+    }
 }
