@@ -1,7 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include <QPixmap>
 #include <QFileDialog>
+#include <unistd.h>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -88,35 +91,16 @@ void MainWindow::Table(int N, int At, int An, int T, int D, int L){
 void MainWindow::on_BotonImg_clicked()
 {
 
-    if (ui->comboBoxGalerias!=0){
+    if (ui->comboBoxGalerias->count()>0){
 
         ///Busca la imagen
         QString imagen = QFileDialog::getOpenFileName(this, "Imagen - Open file", "", "Imagen Files (*.bmp);;All Files (*.*)");
-
-        VentanaImagen = new QGraphicsScene(this);
-
-        ///Imagen que se mostrara
-        Imag = new QPixmap(imagen);
-
-        ///crear View
-        view = new QGraphicsView(VentanaImagen);
-        view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        view->setFixedSize(Imag->width(),Imag->height());
-        VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
-        VentanaImagen->backgroundBrush();
-
-        //Muestra el view
-        view->show();
-
-        VentanaImagen->addPixmap(*Imag);
 
         ///Direccion de la imagen seleccionada
         string DireccionImagen = imagen.toStdString();
 
         ///Se crea el BinaryData
         BMPtoBinaryData(DireccionImagen);
-        //cout<<binaryData<<endl;
 
         int p;
 
@@ -126,40 +110,133 @@ void MainWindow::on_BotonImg_clicked()
             }
         }
 
-        string imagenDeGal = DireccionImagen.substr(p+1,DireccionImagen.length());
 
+        ///Nombre de la imagen
+        string nombreImagen = DireccionImagen.substr(p+1,DireccionImagen.length());
+        ///Imagen comprimida en bits
+        string BData = binaryData;
+        ///Nombre de la galeria
+        QString nomGaleria;
+
+        ///Indice de la galeria
+        int indice = 0;
 
         for (int i=0; i<ui->listWidgetGaleria->count();i++){
 
            if ((ui->listWidgetGaleria->item(i)->text())==ui->comboBoxGalerias->currentText()){
-                ui->listWidgetGaleria->insertItem(i+1,"       "+QString::fromStdString(imagenDeGal));
 
-                i=ui->listWidgetGaleria->count();
+                ///Indice
+                indice=i;
+
+                ///Nombre de la galeria
+                nomGaleria = ui->listWidgetGaleria->item(i)->text();
+
+                i=ui->listWidgetGaleria->count()+1;
             }
 
         }
 
-        ///Agregra a la listViewWig
-        /*for (int i=1;i<=3;i++){
+        /*///Variables para agregar como Key y Data
+        string jsonKEY = "NEWIMAGE";
+        string jsonData = nombreImagen;
 
-            ui->listWidgetGaleria->addItem("    Galeria "+QString::number(i));
+        string jsonKEY2 = "BINARYDATA";
+        string jsonData2 = BData;
 
-            for (int j=1;j<=10;j++){
-                ui->listWidgetGaleria->addItem("            Imagen "+QString::number(j));
-            }
+        string jsonKEY3 = "GALERY";
+        string jsonData3 = nomGaleria.toStdString();
 
-        }*/
+        ///Se agrega la informacion en el JSON
+        json_object *jstring = json_object_new_string(jsonData.c_str());
+        json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+        json_object *jstring2 = json_object_new_string(jsonData2.c_str());
+        json_object_object_add(jObj,jsonKEY2.c_str(), jstring2);
+
+        json_object *jstring3 = json_object_new_string(jsonData3.c_str());
+        json_object_object_add(jObj,jsonKEY3.c_str(), jstring3);
+
+        ///Se envia el JSON, se utiliza de parametro solo el jObject
+        sendJSON(jObj);*/
+
+        newImage="1";
+
+        if (newImage=="1"){
+
+            ui->listWidgetGaleria->insertItem(indice+1,"           "+QString::fromStdString(nombreImagen));
+
+            VentanaImagen = new QGraphicsScene(this);
+
+            ///Imagen que se mostrara
+            Imag = new QPixmap(imagen);
+
+            ///crear View
+            view = new QGraphicsView(VentanaImagen);
+            view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            view->setFixedSize(Imag->width(),Imag->height());
+            VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
+            VentanaImagen->backgroundBrush();
+
+            //Muestra el view
+            view->show();
+
+            VentanaImagen->addPixmap(*Imag);
+
+        }
+
+        else if (newImage=="0"){
+            QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Nueva Imagen"));
+        }
+
+        else{
+            QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Nueva Imagen"));
+        }
+
+    }
+
+    else{
+        QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Galeria"));
     }
 
 }
 
 void MainWindow::on_BotonGal_clicked()
 {
+
     if (ui->galeria->text()!=0){
-        ui->listWidgetGaleria->addItem("    "+ui->galeria->text());
-        ui->comboBoxGalerias->addItem("    "+ui->galeria->text());
+
+        ///Variables para agregar como Key y Data
+        string jsonKEY = "NEWGALLERY";
+        string jsonData = ui->galeria->text().toStdString();
+
+        ///Se agrega la informacion en el JSON
+        json_object *jstring = json_object_new_string(jsonData.c_str());
+        json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+        ///Se envia el JSON, se utiliza de parametro solo el jObject
+        sendJSON(jObj);
+
+        NombreGaleria="1";
+
+        if (NombreGaleria=="1"){
+
+            ui->listWidgetGaleria->addItem(ui->galeria->text());
+            ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setCheckState(Qt::Unchecked);
+            QColor *color = new QColor;
+            color->blueF();
+            ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setTextColor(*color);
+
+            ui->comboBoxGalerias->addItem("    "+ui->galeria->text());
+        }
+        ui->galeria->setText("");
+
     }
-    ui->galeria->setText("");
+
+    else{
+        QMessageBox::information(this, tr("ERROR"), tr("Ingrese Una Galeria Nueva"));
+    }
+
 }
 
 
@@ -245,3 +322,153 @@ string MainWindow::BMPtoBinaryData(string directory) {
 
 }
 
+
+
+
+
+int MainWindow::sendJSON(json_object *jObj){
+    char* str;
+    int fd, numbytes;
+    struct sockaddr_in client;
+
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    char sendBuff[MAXDATASIZE];
+    char recvBuff[MAXDATASIZE];
+
+    struct hostent *he;
+
+    if (fd < 0)
+    {
+        printf("Error : Could not create socket\n");
+        return 1;
+    }
+    else
+    {
+        client.sin_family = AF_INET;
+        client.sin_port = htons(PORT);
+        client.sin_addr.s_addr = inet_addr("10.0.2.15"); //192.168.100.6 //192.168.100.18
+        memset(client.sin_zero, '\0', sizeof(client.sin_zero));
+    }
+
+    if (::connect(fd, (const struct sockaddr *)&client, sizeof(client)) < 0)
+    {
+        printf("ERROR connecting to server\n");
+        return 1;
+    }
+
+    if (strcpy(sendBuff, json_object_to_json_string(jObj)) == NULL) {
+        printf("ERROR strcpy()");
+        exit(-1);
+    }
+
+    if (write(fd, sendBuff, strlen(sendBuff)) == -1)
+    {
+        printf("ERROR write()");
+        exit(-1);
+    }
+
+    if ((numbytes=recv(fd,recvBuff,MAXDATASIZE,0)) < 0){
+
+        printf("Error en recv() \n");
+        exit(-1);
+    }
+
+
+    struct json_object *NEWGALLERY;
+    json_object *parsed_jsonNEWGALLERY = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonNEWGALLERY, "NEWGALLERY", &NEWGALLERY);
+    if (json_object_get_string(NEWGALLERY) != 0) {
+        NombreGaleria = QString::fromStdString(json_object_get_string(NEWGALLERY));
+    }
+
+    struct json_object *NEWIMAGE;
+    json_object *parsed_jsonNEWIMAGE = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonNEWIMAGE, "NEWIMAGE", &NEWIMAGE);
+    if (json_object_get_string(NEWIMAGE) != 0) {
+        newImage = QString::fromStdString(json_object_get_string(NEWIMAGE));
+    }
+
+    ///Se limpian los Buffers
+    memset(recvBuff, 0, MAXDATASIZE);
+    memset(sendBuff, 0, MAXDATASIZE);
+
+    ::close(fd);
+
+}
+
+
+
+int MainWindow::sendJSON(string KEY, string data){
+    char* str;
+    int fd, numbytes;
+    struct sockaddr_in client;
+
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    char sendBuff[MAXDATASIZE];
+    char recvBuff[MAXDATASIZE];
+
+    struct hostent *he;
+
+    if (fd < 0)
+    {
+        printf("Error : Could not create socket\n");
+        return 1;
+    }
+    else
+    {
+        client.sin_family = AF_INET;
+        client.sin_port = htons(PORT);
+        client.sin_addr.s_addr = inet_addr("192.168.100.18"); //192.168.100.6
+        memset(client.sin_zero, '\0', sizeof(client.sin_zero));
+    }
+
+    if (::connect(fd, (const struct sockaddr *)&client, sizeof(client)) < 0)
+    {
+        printf("ERROR connecting to server\n");
+        return 1;
+    }
+
+
+    json_object *jobj = json_object_new_object();
+
+    json_object *jstring = json_object_new_string(data.c_str());
+
+    json_object_object_add(jobj,KEY.c_str(), jstring);
+
+
+    if (strcpy(sendBuff, json_object_to_json_string(jobj)) == NULL) {
+        printf("ERROR strcpy()");
+        exit(-1);
+    }
+
+    if (write(fd, sendBuff, strlen(sendBuff)) == -1)
+    {
+        printf("ERROR write()");
+        exit(-1);
+    }
+
+    if ((numbytes=recv(fd,recvBuff,MAXDATASIZE,0)) < 0){
+
+        printf("Error en recv() \n");
+        exit(-1);
+    }
+
+
+    struct json_object *NEWGALLERY;
+    json_object *parsed_jsonNEWGALLERY = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonNEWGALLERY, "NEWGALLERY", &NEWGALLERY);
+    if (json_object_get_string(NEWGALLERY) != 0) {
+        NombreGaleria = QString::fromStdString(json_object_get_string(NEWGALLERY));
+    }
+
+
+
+    ///Se limpian los Buffers
+    memset(recvBuff, 0, MAXDATASIZE);
+    memset(sendBuff, 0, MAXDATASIZE);
+
+    ::close(fd);
+
+}

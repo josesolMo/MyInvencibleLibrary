@@ -11,6 +11,20 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <json-c/json.h>
+#include <json-c/debug.h>
+#include <json-c/json_object.h>
+#include <QMessageBox>
+
+#define PORT 3550
+#define MAXDATASIZE 1000
+
 using namespace std;
 
 namespace Ui {
@@ -28,6 +42,9 @@ public:
     void Table(int N, int At, int An, int T, int D, int L);
     string BMPtoBinaryData(string directory);
     string decimalToBinary(int d);
+
+    int sendJSON(json_object *jObj);
+    int sendJSON(string KEY, string data);
 
 private slots:
     void on_BotonImg_clicked();
@@ -52,6 +69,13 @@ private:
 
     ///Instancia estática del contenedor del BinaryData
     string binaryData;
+
+    //Objeto JSON para sendJSON()
+    json_object *jObj = json_object_new_object();
+
+    ///Keys SENDJSON
+    QString NombreGaleria;
+    QString newImage;
 
 
 };

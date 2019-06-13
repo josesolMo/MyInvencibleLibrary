@@ -21,3 +21,7 @@ FORMS    += mainwindow.ui
 
 RESOURCES += \
     imagenes.qrc
+
+LIBS += -L/usr/include/json-c/ -ljson-c
+
+QMAKE_CXXFLAGS += -std=gnu++11
