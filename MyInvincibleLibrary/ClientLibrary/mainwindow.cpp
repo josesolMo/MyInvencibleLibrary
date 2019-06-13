@@ -225,30 +225,29 @@ void MainWindow::funcionInsert(string comando)
 void MainWindow::funcionSelect(string comando)
 {
     string subs = comando;
+    cout << subs << endl;
     if (subs[0] == '*'){
         size_t From = subs.find("FROM ");
-        if (2 < From){
+        if (3 < From){
             cout << "Syntax error" << endl;
             return;
         }
-        subs = subs.substr(From+6);
-        size_t coma = subs.find(";");
-        if (subs.length()< coma){
+        subs = subs.substr(From+5);
+        size_t pycoma = subs.find(";");
+        if (subs.length()< pycoma){
             cout << "Syntax error" << endl;
             return;
         }
-        string tabla;
-        tabla = subs.substr(0, coma);
+        string tabla = subs.substr(0, pycoma);
         cout << tabla << endl;
-        subs = subs.substr(coma+1);
-        cout << subs << endl;
         if(tabla[0] == ' '){
             tabla = tabla.substr(1);
         }
         if (tabla[tabla.length()-1] == ' '){
             tabla = tabla.substr(0, tabla.length()-1);
         }
-        subs = subs.substr(coma+1);
+        subs = subs.substr(pycoma+1);
+        cout << subs << endl;
         if(subs.compare("") == 0 || subs.compare(" ") == 0){
             cout << "Imprimir valores de tabla" << endl;
             return;
@@ -260,19 +259,153 @@ void MainWindow::funcionSelect(string comando)
                 return;
             }
             subs = subs.substr(where+6);
+            if (subs.substr(0,4).compare("NOT ") == 0){
+                subs = subs.substr(0,4);
+                size_t comand = subs.find("= ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+2);
+                    cout << column << endl;
+                    size_t pycoma = subs.find(";");
+                    if (subs.length()< pycoma){
+                        cout << "Syntax error" << endl;
+                        return;
+                    }
+                    string value = subs.substr(0, pycoma);
+                    cout << value << endl;
+                    if(value[0] == '"'){
+                        value = value.substr(1);
+                    }
+                    if (value[value.length()-1] == '"'){
+                        value = value.substr(0, value.length()-1);
+                    }
+                    cout << value << endl;
+                    return;
+                }
+
+                comand = subs.find("< ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+2);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("> ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+2);
+                    cout << column << endl;
+                }
+
+                comand = subs.find(">= ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+3);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("<= ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+3);
+                    cout << column << endl;
+                }
+                else{
+                    cout << "Syntax error" << endl;
+                    return;
+                }
+
+            }
+            else {
+
+                size_t comand = subs.find("NOT ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+3);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("BETWEEN ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+8);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("IN ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+3);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("= ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+2);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("< ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+2);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("> ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+2);
+                    cout << column << endl;
+                }
+
+                comand = subs.find(">= ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+3);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("<= ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+3);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("IS ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+3);
+                    cout << column << endl;
+                }
+
+                comand = subs.find("LIKE ");
+                if (subs.length() > comand){
+                    string column = subs.substr(0, comand);
+                    subs = subs.substr(comand+5 );
+                    cout << column << endl;
+                }
+                else{
+                    cout << "Syntax error" << endl;
+                    return;
+                }
+            }
+
+
             /*
-             * COLOCAR TODAS LAS POSIBLES CONDICIONALES[BETWEEN(AND, OR, NOT),IN,=,<,>,<=,>=,IS(NULL, NOT NULL),LIKE]
+             * COLOCAR TODAS LAS POSIBLES CONDICIONALES[BETWEEN(AND, OR, NOT),IS(NULL, NOT NULL),LIKE]
              */
         }
     }
-    else if(subs.find(" FROM ") > subs.length()){
+    else if(subs.find("FROM ") < subs.length()){
 
     }
     else {
         cout << "Syntax error" << endl;
         return;
     }
-    cout << comando << endl;
 
 }
 
