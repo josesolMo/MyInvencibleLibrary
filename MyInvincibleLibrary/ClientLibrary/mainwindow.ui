@@ -191,7 +191,7 @@
     <property name="geometry">
      <rect>
       <x>90</x>
-      <y>490</y>
+      <y>530</y>
       <width>171</width>
       <height>31</height>
      </rect>
@@ -222,19 +222,6 @@
     </property>
     <property name="textInteractionFlags">
      <set>Qt::LinksAccessibleByMouse</set>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="imagen">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>520</y>
-      <width>231</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="BotonImg">

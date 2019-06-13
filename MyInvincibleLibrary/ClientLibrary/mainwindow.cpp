@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QPixmap>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Library");
 
     ///Columnas
-    Table (1,1,0,0,1,1);
+    Table (1,1,1,1,1,1);
 }
 
 MainWindow::~MainWindow()
@@ -84,6 +86,31 @@ void MainWindow::Table(int N, int At, int An, int T, int D, int L){
 
 void MainWindow::on_BotonImg_clicked()
 {
+
+    ///Busca la imagen
+    QString imagen = QFileDialog::getOpenFileName(this, "Imagen - Open file", "", "Imagen Files (*.bmp);;All Files (*.*)");
+
+    VentanaImagen = new QGraphicsScene(this);
+
+    ///Imagen que se mostrara
+    Imag = new QPixmap(imagen);
+
+    ///crear View
+    view = new QGraphicsView(VentanaImagen);
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setFixedSize(Imag->width(),Imag->height());
+    //VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
+    VentanaImagen->backgroundBrush();
+
+    //Muestra el view
+    view->show();
+
+    VentanaImagen->addPixmap(*Imag);
+
+
+    cout << imagen.toStdString() << endl;
+
     ///Agregra a la listViewWig
     /*for (int i=1;i<=3;i++){
 
@@ -94,12 +121,6 @@ void MainWindow::on_BotonImg_clicked()
         }
 
     }*/
-
-    if (ui->imagen->text()!=0){
-
-        ui->listWidgetGaleria->addItem("            "+ui->imagen->text());
-
-    }
 
 }
 
