@@ -186,9 +186,8 @@ void MainWindow::funcionInsert(string comando)
                     cout << current << endl;
                     values = values.substr(current.length(),values.length()-1);
                     int min = order.size()-1;
-                    cout << c << " " << min << endl;
                     if(c != min){
-                        cout << "Faltan valores" << endl;
+                        cout << "Faltan valores o sobran" << endl;
                         return;
                     }
                 }
@@ -209,6 +208,8 @@ void MainWindow::funcionInsert(string comando)
                 addToTable(order[c],current);
                 c++;
             }
+            ui->LineaCMD->clear();
+            return;
         }
         else {
             cout << "Syntax error" << endl;
@@ -223,6 +224,54 @@ void MainWindow::funcionInsert(string comando)
 
 void MainWindow::funcionSelect(string comando)
 {
+    string subs = comando;
+    if (subs[0] == '*'){
+        size_t From = subs.find("FROM ");
+        if (2 < From){
+            cout << "Syntax error" << endl;
+            return;
+        }
+        subs = subs.substr(From+6);
+        size_t coma = subs.find(";");
+        if (subs.length()< coma){
+            cout << "Syntax error" << endl;
+            return;
+        }
+        string tabla;
+        tabla = subs.substr(0, coma);
+        cout << tabla << endl;
+        subs = subs.substr(coma+1);
+        cout << subs << endl;
+        if(tabla[0] == ' '){
+            tabla = tabla.substr(1);
+        }
+        if (tabla[tabla.length()-1] == ' '){
+            tabla = tabla.substr(0, tabla.length()-1);
+        }
+        subs = subs.substr(coma+1);
+        if(subs.compare("") == 0 || subs.compare(" ") == 0){
+            cout << "Imprimir valores de tabla" << endl;
+            return;
+        }
+        else{
+            size_t where = subs.find("WHERE ");
+            if (2 < where){
+                cout << "Syntax error" << endl;
+                return;
+            }
+            subs = subs.substr(where+6);
+            /*
+             * COLOCAR TODAS LAS POSIBLES CONDICIONALES[BETWEEN(AND, OR, NOT),IN,=,<,>,<=,>=,IS(NULL, NOT NULL),LIKE]
+             */
+        }
+    }
+    else if(subs.find(" FROM ") > subs.length()){
+
+    }
+    else {
+        cout << "Syntax error" << endl;
+        return;
+    }
     cout << comando << endl;
 
 }
@@ -321,7 +370,6 @@ void MainWindow::on_BotonEJECUTAR_clicked()
             cout << "Funcion INSERT" << endl;
             //sendJSON("INSERT",cmd);
             funcionInsert(cmd);
-            ui->LineaCMD->clear();
         }else if (subs.compare("SELECT ") == 0 || subs.compare("select ") == 0){
             cout << "Funcion SELECT" << endl;
             //sendJSON("SELECT",cmd);
