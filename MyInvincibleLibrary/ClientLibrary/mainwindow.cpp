@@ -5,6 +5,8 @@
 #include <chrono>
 #include <thread>
 #include <string>
+#include <vector>
+
 
 
 using namespace std;
@@ -96,8 +98,126 @@ void MainWindow::funcionInsert(string comando)
     if (subs.compare("INTO ") == 0 ||subs.compare("into ") == 0){
         subs = comando.substr(5);
         size_t space = subs.find(" ");
-        string galery = subs.substr(0, space+1);
+        if (subs.length()< space){
+            cout << "Syntax error" << endl;
+            return;
+        }
+        string galery = subs.substr(0, space);
         cout << galery << endl;
+        subs = subs.substr(space+1);
+        vector <string> order;
+        if((subs.substr(0,1)).compare("(") == 0){
+            size_t columnsEnd = subs.find(")");
+            if (subs.length()< columnsEnd){
+                cout << "Syntax error" << endl;
+                return;
+            }
+            string columns = subs.substr(1, columnsEnd);
+            cout << columns << endl;
+            subs = subs.substr(columnsEnd+1);
+            while (columns.compare(")") != 0){
+                size_t coma = columns.find(",");
+                string current;
+                if (columns.length()< coma){
+                    current = columns.substr(0, columns.length()-1);
+                    //cout << current << endl;
+                    columns = columns.substr(current.length(),columns.length()-1);
+                }
+                else {
+                    current = columns.substr(0, coma);
+                    //cout << current << endl;
+                    columns = columns.substr(coma+1);
+                    //cout << columns << endl;
+                }
+                if(current[0] == ' '){
+                    current = current.substr(1);
+                }
+                if (current[current.length()-1] == ' '){
+                    current = current.substr(0, current.length()-1);
+                }
+                cout << current << endl;
+                cout << columns << endl;
+                current = columnaGET(current);
+                if(current.compare("F") == 0){
+                    cout << "No existe ese dato en la tabla" << endl;
+                    return;
+                }
+                else {
+                    order.push_back(current);
+                }
+            }
+            int C = 0;
+            while (C < order.size()){
+                cout << order[C] << endl;
+                C++;
+            }
+        }
+        else {
+            order.push_back("A");
+            order.push_back("B");
+            order.push_back("C");
+            order.push_back("D");
+            order.push_back("E");
+
+        }
+        size_t values = subs.find("VALUES ");
+        if(values > 2){
+            cout << "Syntax error" << endl;
+            return;
+        }
+
+        subs = subs.substr(values+7);
+        cout << subs << endl;
+
+        if((subs.substr(0,1)).compare("(") == 0){
+            size_t valuesEnd = subs.find(")");
+            if (subs.length()< valuesEnd){
+                cout << "Syntax error" << endl;
+                return;
+            }
+            string values = subs.substr(1, valuesEnd);
+            cout << values << endl;
+            int c = 0;
+            while (values.compare(")") != 0){
+                size_t coma = values.find(",");
+                string current;
+                if (values.length()< coma){
+                    current = values.substr(0, values.length()-1);
+                    cout << current << endl;
+                    values = values.substr(current.length(),values.length()-1);
+                    int min = order.size()-1;
+                    cout << c << " " << min << endl;
+                    if(c != min){
+                        cout << "Faltan valores" << endl;
+                        return;
+                    }
+                }
+                else {
+                    current = values.substr(0, coma);
+                    cout << current << endl;
+                    values = values.substr(coma+1);
+                    cout << values << endl;
+                }
+                if(current[0] == '"'){
+                    current = current.substr(1);
+                }
+                if (current[current.length()-1] == '"'){
+                    current = current.substr(0, current.length()-1);
+                }
+                //cout << current << endl;
+                //cout << columns << endl;
+                addToTable(order[c],current);
+                c++;
+            }
+        }
+        else {
+            cout << "Syntax error" << endl;
+            return;
+        }
+    }
+    else {
+        cout << "Syntax error" << endl;
+        return;
     }
 }
 
@@ -115,6 +235,52 @@ void MainWindow::funcionUpdate(string comando)
 void MainWindow::funcionDelete(string comando)
 {
     cout << comando << endl;
+}
+
+string MainWindow::columnaGET(string evaluar)
+{
+    if(evaluar.compare("Fecha") == 0){
+        return "A";
+    }
+    else if(evaluar.compare("Nombre") == 0){
+        return "B";
+
+    }
+    else if(evaluar.compare("Autor") == 0){
+        return "C";
+
+    }
+    else if(evaluar.compare("Tamano") == 0){
+        return "D";
+
+    }
+    else if(evaluar.compare("Descripcion") == 0){
+        return "E";
+
+    }
+    else{
+        return "F";
+
+    }
+}
+
+void MainWindow::addToTable(string columna, string value)
+{
+    if(columna.compare("A") == 0){
+        this->fecha = value;
+    }
+    else if(columna.compare("B") == 0){
+        this->nombre = value;
+    }
+    else if(columna.compare("C") == 0){
+        this->autor = value;
+    }
+    else if(columna.compare("D") == 0){
+        this->size = value;
+    }
+    else if(columna.compare("E") == 0){
+        this->descripcion = value;
+    }
 }
 
 ///BOTONES
@@ -144,34 +310,41 @@ void MainWindow::on_BotonGal_clicked()
 void MainWindow::on_BotonEJECUTAR_clicked()
 {
     string comando = ui->LineaCMD->toPlainText().toStdString();
-    string subs = comando.substr(0,7);
-    string cmd = comando.substr(7);
-    if (subs.compare("INSERT ") == 0 || subs.compare("insert ") == 0){
-        cout << "Funcion INSERT" << endl;
-        //sendJSON("INSERT",cmd);
-        funcionInsert(cmd);
-        ui->LineaCMD->clear();
-    }else if (subs.compare("SELECT ") == 0 || subs.compare("select ") == 0){
-        cout << "Funcion SELECT" << endl;
-        //sendJSON("SELECT",cmd);
-        funcionSelect(cmd);
-        ui->LineaCMD->clear();
-    }else if (subs.compare("UPDATE ") == 0 || subs.compare("update ") == 0){
-        cout << "Funcion UPDATE" << endl;
-        //sendJSON("UPDATE",cmd);
-        funcionUpdate(cmd);
-        ui->LineaCMD->clear();
-    }else if (subs.compare("DELETE ") == 0 || subs.compare("delete ") == 0){
-        cout << "Funcion DELETE" << endl;
-        //sendJSON("DELETE",cmd);
-        funcionDelete(cmd);
-        ui->LineaCMD->clear();
-    }else {
+    if(comando.length() < 7){
         cout << "Syntax error" << endl;
+
     }
+    else {
+        string subs = comando.substr(0,7);
+        string cmd = comando.substr(7);
+        if (subs.compare("INSERT ") == 0 || subs.compare("insert ") == 0){
+            cout << "Funcion INSERT" << endl;
+            //sendJSON("INSERT",cmd);
+            funcionInsert(cmd);
+            ui->LineaCMD->clear();
+        }else if (subs.compare("SELECT ") == 0 || subs.compare("select ") == 0){
+            cout << "Funcion SELECT" << endl;
+            //sendJSON("SELECT",cmd);
+            funcionSelect(cmd);
+            ui->LineaCMD->clear();
+        }else if (subs.compare("UPDATE ") == 0 || subs.compare("update ") == 0){
+            cout << "Funcion UPDATE" << endl;
+            //sendJSON("UPDATE",cmd);
+            funcionUpdate(cmd);
+            ui->LineaCMD->clear();
+        }else if (subs.compare("DELETE ") == 0 || subs.compare("delete ") == 0){
+            cout << "Funcion DELETE" << endl;
+            //sendJSON("DELETE",cmd);
+            funcionDelete(cmd);
+            ui->LineaCMD->clear();
+        }else {
+            cout << "Syntax error" << endl;
+        }
+    }
+
 }
 
-int MainWindow::sendJSON(string KEY, string data){
+/***int MainWindow::sendJSON(string KEY, string data){
     char* str;
     int fd, numbytes;
     struct sockaddr_in client;
@@ -261,4 +434,5 @@ int MainWindow::sendJSON(string KEY, string data){
 
     ::close(fd);
 
-}
+}*/
+

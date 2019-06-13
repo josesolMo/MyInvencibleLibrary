@@ -51,10 +51,21 @@ private:
     ///Cantidad de columnas
     int num,num2,col,fil;
     int Nombre,Autor,Year,Size,Descripcion,Link;
+
     void funcionInsert(string comando);
     void funcionSelect(string comando);
     void funcionUpdate(string comando);
     void funcionDelete(string comando);
+
+    string columnaGET(string evaluar);
+
+    void addToTable(string columna, string value);
+
+    string fecha;
+    string autor;
+    string nombre;
+    string descripcion;
+    string size;
 
     string insertD;
     string selectD;
