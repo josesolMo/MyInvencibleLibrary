@@ -75,10 +75,10 @@ void MainWindow::Table(int N, int At, int An, int T, int D, int L){
     //ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Nombre"));
 
     for (int i=0;i<fil;i++){
-        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-        int fila = ui->tableWidget->rowCount()-1;
-        ui->tableWidget->setItem(fila,Nombre,new QTableWidgetItem("Edgar Gonzalez"));
-        ui->tableWidget->setItem(fila,Link,new QTableWidgetItem("  >  "));
+        //ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        //int fila = ui->tableWidget->rowCount()-1;
+        //ui->tableWidget->setItem(fila,Nombre,new QTableWidgetItem("Edgar Gonzalez"));
+        //ui->tableWidget->setItem(fila,Link,new QTableWidgetItem("  >  "));
     }
 
 
@@ -87,40 +87,66 @@ void MainWindow::Table(int N, int At, int An, int T, int D, int L){
 void MainWindow::on_BotonImg_clicked()
 {
 
-    ///Busca la imagen
-    QString imagen = QFileDialog::getOpenFileName(this, "Imagen - Open file", "", "Imagen Files (*.bmp);;All Files (*.*)");
+    if (ui->comboBoxGalerias!=0){
 
-    VentanaImagen = new QGraphicsScene(this);
+        ///Busca la imagen
+        QString imagen = QFileDialog::getOpenFileName(this, "Imagen - Open file", "", "Imagen Files (*.bmp);;All Files (*.*)");
 
-    ///Imagen que se mostrara
-    Imag = new QPixmap(imagen);
+        VentanaImagen = new QGraphicsScene(this);
 
-    ///crear View
-    view = new QGraphicsView(VentanaImagen);
-    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setFixedSize(Imag->width(),Imag->height());
-    //VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
-    VentanaImagen->backgroundBrush();
+        ///Imagen que se mostrara
+        Imag = new QPixmap(imagen);
 
-    //Muestra el view
-    view->show();
+        ///crear View
+        view = new QGraphicsView(VentanaImagen);
+        view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setFixedSize(Imag->width(),Imag->height());
+        VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
+        VentanaImagen->backgroundBrush();
 
-    VentanaImagen->addPixmap(*Imag);
+        //Muestra el view
+        view->show();
 
+        VentanaImagen->addPixmap(*Imag);
 
-    cout << imagen.toStdString() << endl;
+        cout << imagen.toStdString() << endl;
 
-    ///Agregra a la listViewWig
-    /*for (int i=1;i<=3;i++){
+        string DireccionImagen = imagen.toStdString();
+        int p;
 
-        ui->listWidgetGaleria->addItem("    Galeria "+QString::number(i));
-
-        for (int j=1;j<=10;j++){
-            ui->listWidgetGaleria->addItem("            Imagen "+QString::number(j));
+        for (int i=0; i<DireccionImagen.length();i++){
+            if (DireccionImagen[i] == '/'){
+                p=i;
+            }
         }
 
-    }*/
+        string imagenDeGal = DireccionImagen.substr(p+1,DireccionImagen.length());
+
+
+        for (int i=0; i<ui->listWidgetGaleria->count();i++){
+
+           if ((ui->listWidgetGaleria->item(i)->text())==ui->comboBoxGalerias->currentText()){
+                ui->listWidgetGaleria->insertItem(i+1,"       "+QString::fromStdString(imagenDeGal));
+
+                i=ui->listWidgetGaleria->count();
+            }
+
+        }
+
+        ui->comboBoxGalerias->lineEdit();
+
+        ///Agregra a la listViewWig
+        /*for (int i=1;i<=3;i++){
+
+            ui->listWidgetGaleria->addItem("    Galeria "+QString::number(i));
+
+            for (int j=1;j<=10;j++){
+                ui->listWidgetGaleria->addItem("            Imagen "+QString::number(j));
+            }
+
+        }*/
+    }
 
 }
 
@@ -128,5 +154,7 @@ void MainWindow::on_BotonGal_clicked()
 {
     if (ui->galeria->text()!=0){
         ui->listWidgetGaleria->addItem("    "+ui->galeria->text());
+        ui->comboBoxGalerias->addItem("    "+ui->galeria->text());
     }
+    ui->galeria->setText("");
 }
