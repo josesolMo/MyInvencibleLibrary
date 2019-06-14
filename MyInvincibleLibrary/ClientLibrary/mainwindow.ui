@@ -140,7 +140,7 @@
      <string>+</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="LineaCMD">
     <property name="geometry">
      <rect>
       <x>310</x>

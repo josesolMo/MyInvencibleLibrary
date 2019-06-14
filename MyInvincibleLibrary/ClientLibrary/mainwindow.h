@@ -39,7 +39,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void Table(int N, int At, int An, int T, int D, int L);
+    void Table(int FID, int N, int At, int An, int T, int D, int L);
     string BMPtoBinaryData(string directory);
     string decimalToBinary(int d);
 
@@ -51,12 +51,14 @@ private slots:
 
     void on_BotonGal_clicked();
 
+    void on_BotonEJECUTAR_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     ///Cantidad de columnas
     int num,num2,col,fil;
-    int Nombre,Autor,Year,Size,Descripcion,Link;
+    int Nombre,Autor,Year,Size,Descripcion,Link,FileID;
 
     ///Imagen
     QPixmap* Imag;
@@ -76,8 +78,13 @@ private:
     ///Keys SENDJSON
     QString NombreGaleria;
     QString newImage;
+    QString console;
 
+    ///Keys para completar la tabla de comandos
+    QString NombreS,AutorS,YearS,SizeS,DescripcionS,FileIDS;
 
+    ///json object
+    struct json_object *tablaFinal;
 };
 
 #endif // MAINWINDOW_H
