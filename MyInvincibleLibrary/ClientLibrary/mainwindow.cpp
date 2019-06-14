@@ -112,7 +112,7 @@ void MainWindow::on_BotonImg_clicked()
 
 
         ///Nombre de la imagen
-        string nombreImagen = DireccionImagen.substr(p+1,DireccionImagen.length());
+        string nombreImagen = DireccionImagen.substr(p+1,DireccionImagen.length()-4);
         ///Imagen comprimida en bits
         string BData = binaryData;
         ///Nombre de la galeria
@@ -123,7 +123,7 @@ void MainWindow::on_BotonImg_clicked()
 
         for (int i=0; i<ui->listWidgetGaleria->count();i++){
 
-           if ((ui->listWidgetGaleria->item(i)->text())==ui->comboBoxGalerias->currentText()){
+           if ("    "+(ui->listWidgetGaleria->item(i)->text())==ui->comboBoxGalerias->currentText()){
 
                 ///Indice
                 indice=i;
@@ -136,14 +136,17 @@ void MainWindow::on_BotonImg_clicked()
 
         }
 
-        /*///Variables para agregar como Key y Data
+        ///Objeto JSON
+        jObj = json_object_new_object();
+
+        ///Variables para agregar como Key y Data
         string jsonKEY = "NEWIMAGE";
         string jsonData = nombreImagen;
 
         string jsonKEY2 = "BINARYDATA";
         string jsonData2 = BData;
 
-        string jsonKEY3 = "GALERY";
+        string jsonKEY3 = "GALLERY";
         string jsonData3 = nomGaleria.toStdString();
 
         ///Se agrega la informacion en el JSON
@@ -157,9 +160,11 @@ void MainWindow::on_BotonImg_clicked()
         json_object_object_add(jObj,jsonKEY3.c_str(), jstring3);
 
         ///Se envia el JSON, se utiliza de parametro solo el jObject
-        sendJSON(jObj);*/
+        sendJSON(jObj);
 
-        newImage="1";
+        cout<<newImage.toStdString()<<endl;
+
+        //newImage="1";
 
         if (newImage=="1"){
 
@@ -206,6 +211,10 @@ void MainWindow::on_BotonGal_clicked()
 
     if (ui->galeria->text()!=0){
 
+
+        ///Objeto JSON
+        jObj = json_object_new_object();
+
         ///Variables para agregar como Key y Data
         string jsonKEY = "NEWGALLERY";
         string jsonData = ui->galeria->text().toStdString();
@@ -217,18 +226,21 @@ void MainWindow::on_BotonGal_clicked()
         ///Se envia el JSON, se utiliza de parametro solo el jObject
         sendJSON(jObj);
 
-        NombreGaleria="1";
-
         if (NombreGaleria=="1"){
 
             ui->listWidgetGaleria->addItem(ui->galeria->text());
             ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setCheckState(Qt::Unchecked);
             QColor *color = new QColor;
-            color->blueF();
+            color->setRgb(23,58,216);
             ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setTextColor(*color);
 
             ui->comboBoxGalerias->addItem("    "+ui->galeria->text());
         }
+
+        else if (NombreGaleria=="0"){
+            QMessageBox::information(this, tr("ERROR"), tr("Ya Existe Esta Galeria, Ingrese Una Nueva"));
+        }
+
         ui->galeria->setText("");
 
     }
@@ -347,7 +359,7 @@ int MainWindow::sendJSON(json_object *jObj){
     {
         client.sin_family = AF_INET;
         client.sin_port = htons(PORT);
-        client.sin_addr.s_addr = inet_addr("10.0.2.15"); //192.168.100.6 //192.168.100.18
+        client.sin_addr.s_addr = inet_addr("192.168.100.3"); //192.168.100.6 //192.168.100.18
         memset(client.sin_zero, '\0', sizeof(client.sin_zero));
     }
 

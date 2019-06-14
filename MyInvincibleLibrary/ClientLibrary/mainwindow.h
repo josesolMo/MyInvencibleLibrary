@@ -23,7 +23,7 @@
 #include <QMessageBox>
 
 #define PORT 3550
-#define MAXDATASIZE 1000
+#define MAXDATASIZE 999999
 
 using namespace std;
 
@@ -71,7 +71,7 @@ private:
     string binaryData;
 
     //Objeto JSON para sendJSON()
-    json_object *jObj = json_object_new_object();
+    json_object *jObj;
 
     ///Keys SENDJSON
     QString NombreGaleria;
