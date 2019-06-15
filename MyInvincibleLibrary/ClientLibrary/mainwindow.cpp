@@ -45,7 +45,7 @@ void MainWindow::Table(int FID, int N, int At, int An, int T, int D, int L){
 
     ///Cantidad de columnas
     if (FID==1){
-       titulos.append("File_ID");
+       titulos.append("File_Name");
        FileID=col;
        col+=1;
     }
@@ -270,13 +270,15 @@ void MainWindow::on_BotonGal_clicked()
  * @param -
  * @return grafication
  */
-void MainWindow::on_BotonEJECUTAR_clicked()
-{
+void MainWindow::on_BotonEJECUTAR_clicked(){
+
+    ///Define la cantidad de filas del tableWidget a 0
     ui->tableWidget->setRowCount(0);
 
+    ///Cuando el textBox (LineaCMD) tiene algo escrito.
     if (ui->LineaCMD->toPlainText()!=0){
 
-        /*///Objeto JSON
+        ///Objeto JSON por enviar
         jObj = json_object_new_object();
 
         ///Variables para agregar como Key y Data
@@ -288,27 +290,30 @@ void MainWindow::on_BotonEJECUTAR_clicked()
         json_object_object_add(jObj,jsonKEY.c_str(), jstring);
 
         ///Se envia el JSON, se utiliza de parametro solo el jObject
-        sendJSON(jObj);*/
-
-
-
-        ///TEST
-        ///Objeto JSON
-        jObj = json_object_new_object();
-
-        ///Variables para agregar como Key y Data
-        string jsonKEY = "TEST";
-        string jsonData = "1";
-
-        ///Se agrega la informacion en el JSON
-        json_object *jstring = json_object_new_string(jsonData.c_str());
-        json_object_object_add(jObj,jsonKEY.c_str(), jstring);
-
-        ///Se envia el JSON, se utiliza de parametro solo el jObject
         sendJSON(jObj);
 
+        ///"console" se verifica en la funcion sendJSON y se modifica segun lo recibido
 
-        if (console=="1"){
+        ///Error de referencia en MetadataDB
+        if (console == "-2") {
+            QMessageBox::warning(this, tr("ERROR"), tr("No se ha encontrado algún elemento referenciado."));
+        }
+        ///
+        else if (console == "-1" || console == "" ) {
+            QMessageBox::warning(this, tr("ERROR"), tr("Por favor ingrese una correcta sintaxis SQL."));
+            ui->LineaCMD->setText("");
+        }
+        ///Sintax error en MetadataDB
+        else if (console == "0") {
+            QMessageBox::warning(this, tr("ERROR"), tr("Error en Sintaxis"));
+        }
+        ///Confirmacion de operacion completada en Cliemte
+        else if (console == "2") {
+            QMessageBox::information(this, tr("SUCCESS"), tr("Se ha completado el comando correctamente."));
+        }
+
+        ///else: Graficacion de la tabla con el json de array de arrays proveniente de MetadataDB
+        else {
 
             ///Cantidad de elementos en el array
             int cantArray = json_object_array_length(tablaFinal);
@@ -323,29 +328,18 @@ void MainWindow::on_BotonEJECUTAR_clicked()
 
                 string test = json_object_to_json_string(json_object_array_get_idx(COLUMNA,0));
 
-                if (test=="\"FILE_ID\""){
-                    f=1;
-                }
+                if (test=="\"FILENAME\""){ f=1; }
 
-                if (test=="\"NOMBRE\""){
-                    n=1;
-                }
+                if (test=="\"NAME\""){ n=1; }
 
-                if (test=="\"AUTOR\""){
-                    a=1;
-                }
+                if (test=="\"AUTHOR\""){ a=1; }
 
-                if (test=="\"CREACION\""){
-                    c=1;
-                }
+                if (test=="\"YEAR\""){ c=1; }
 
-                if (test=="\"TAMANO\""){
-                    t=1;
-                }
+                if (test=="\"SIZE\""){ t=1; }
 
-                if (test=="\"DESCRIPCION\""){
-                    d=1;
-                }
+                if (test=="\"DESCRIPTION\""){ d=1;}
+
             }
 
             Table(f,n,a,c,t,d,1);
@@ -353,50 +347,49 @@ void MainWindow::on_BotonEJECUTAR_clicked()
             bool add=true;
 
 
-
             for(int i=0;i<cantArray;i++){
 
-                struct json_object *COLUMNA;
-                COLUMNA = json_object_array_get_idx(tablaFinal,i);
+                ///Toma la columna por indice
+                struct json_object *columnaG;
+                columnaG = json_object_array_get_idx(tablaFinal,i);
 
-                int fila = json_object_array_length(COLUMNA);
+                int fila = json_object_array_length(columnaG);
 
-                string test = json_object_to_json_string(json_object_array_get_idx(COLUMNA,0));
+                string test = json_object_to_json_string(json_object_array_get_idx(columnaG,0));
 
                 for(int j=0; j<(fila-1); j++){
 
 
 
                     if (add==true){
-                        cout<<"ADD: "<<endl;
                         ///Inserta un nuevo dato
                         ui->tableWidget->insertRow(j);
                     }
 
-                    string datoF = json_object_to_json_string(json_object_array_get_idx(COLUMNA,j+1));
+                    string datoF = json_object_to_json_string(json_object_array_get_idx(columnaG,j+1));
                     QString dato = QString::fromStdString(datoF);
 
-                    if (test=="\"FILE_ID\""){
+                    if (test=="\"FILENAME\""){
                         ui->tableWidget->setItem(j,FileID,new QTableWidgetItem(dato));
                     }
 
-                    if (test=="\"NOMBRE\""){
+                    if (test=="\"NAME\""){
                         ui->tableWidget->setItem(j,Nombre,new QTableWidgetItem(dato));
                     }
 
-                    if (test=="\"AUTOR\""){
+                    if (test=="\"AUTHOR\""){
                         ui->tableWidget->setItem(j,Autor,new QTableWidgetItem(dato));
                     }
 
-                    if (test=="\"CREACION\""){
+                    if (test=="\"YEAR\""){
                         ui->tableWidget->setItem(j,Year,new QTableWidgetItem(dato));
                     }
 
-                    if (test=="\"TAMANO\""){
+                    if (test=="\"SIZE\""){
                         ui->tableWidget->setItem(j,Size,new QTableWidgetItem(dato));
                     }
 
-                    if (test=="\"DESCRIPCION\""){
+                    if (test=="\"DESCRIPTION\""){
                         ui->tableWidget->setItem(j,Descripcion,new QTableWidgetItem(dato));
                     }
 
@@ -406,21 +399,12 @@ void MainWindow::on_BotonEJECUTAR_clicked()
 
             }
         }
-
-        else{
-            QMessageBox::information(this, tr("ERROR"), tr("Comando incorrecto"));
-        }
-
-        ui->LineaCMD->setText("");
-
     }
-
-    else{
-        QMessageBox::information(this, tr("ERROR"), tr("Complete Correctamente la linea de comando"));
-    }
-
-
 }
+
+
+
+///////////////////////////////////////////Conversion de imagenes///////////////////////////////////////////
 
 
 
@@ -503,6 +487,12 @@ string MainWindow::BMPtoBinaryData(string directory) {
 
 }
 
+
+
+///////////////////////////////////////////Conversion de imagenes///////////////////////////////////////////
+
+
+
 /**
  * Envia el JSON al servidor con datos solicitados.
  * @param jObj
@@ -530,7 +520,7 @@ int MainWindow::sendJSON(json_object *jObj){
     {
         client.sin_family = AF_INET;
         client.sin_port = htons(PORT);
-        client.sin_addr.s_addr = inet_addr("192.168.100.4"); //192.168.100.6 //192.168.100.18
+        client.sin_addr.s_addr = inet_addr("192.168.100.4"); //192.168.100.
         memset(client.sin_zero, '\0', sizeof(client.sin_zero));
     }
 
@@ -558,34 +548,48 @@ int MainWindow::sendJSON(json_object *jObj){
     }
 
 
-    struct json_object *NEWGALLERY;
-    json_object *parsed_jsonNEWGALLERY = json_tokener_parse(recvBuff);
-    json_object_object_get_ex(parsed_jsonNEWGALLERY, "NEWGALLERY", &NEWGALLERY);
-    if (json_object_get_string(NEWGALLERY) != 0) {
-        NombreGaleria = QString::fromStdString(json_object_get_string(NEWGALLERY));
+    struct json_object *tempNewGalery;
+    json_object *parsed_jsonNewGalery = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonNewGalery, "NEWGALLERY", &tempNewGalery);
+    if (json_object_get_string(tempNewGalery) != 0) {
+        NombreGaleria = QString::fromStdString(json_object_get_string(tempNewGalery));
     }
 
-    struct json_object *NEWIMAGE;
-    json_object *parsed_jsonNEWIMAGE = json_tokener_parse(recvBuff);
-    json_object_object_get_ex(parsed_jsonNEWIMAGE, "NEWIMAGE", &NEWIMAGE);
-    if (json_object_get_string(NEWIMAGE) != 0) {
-        newImage = QString::fromStdString(json_object_get_string(NEWIMAGE));
+    struct json_object *tempNewImage;
+    json_object *parsed_jsonNewImage = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonNewImage, "NEWIMAGE", &tempNewImage);
+    if (json_object_get_string(tempNewImage) != 0) {
+        newImage = QString::fromStdString(json_object_get_string(tempNewImage));
     }
 
-    struct json_object *CONSOLE;
-    json_object *parsed_jsonCONSOLE = json_tokener_parse(recvBuff);
-    json_object_object_get_ex(parsed_jsonCONSOLE, "CONSOLE", &CONSOLE);
-    if (json_object_get_string(CONSOLE) != 0) {
-        console="1";
-        tablaFinal=CONSOLE;
+    struct json_object *tempConsole;
+    json_object *parsed_jsonConsole = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonConsole, "CONSOLE", &tempConsole);
+    if (json_object_get_string(tempConsole) != 0) {
+
+        ///Toma el primer array
+        struct json_object *firstArray;
+        firstArray = json_object_array_get_idx(tempConsole,1);
+
+        ///Toma el primer dato del primer array
+        struct json_object *check00;
+        check00 = json_object_array_get_idx(firstArray,1);
+
+        ///Se guarda check00 en el string para ser comparado y mostrar en cliente
+        console = json_object_to_json_string(check00);
+        cout << "console (0,0): " << console.toStdString() << endl;
+
+        ///Guarda en la clase el array de arrays proveniente de MetadataDB
+        tablaFinal=tempConsole;
+
     }
 
-    struct json_object *TEST;
-    json_object *parsed_jsonTEST = json_tokener_parse(recvBuff);
-    json_object_object_get_ex(parsed_jsonTEST, "TEST", &TEST);
-    if (json_object_get_string(TEST) != 0) {
+    struct json_object *tempTest;
+    json_object *parsed_jsonTest = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonTest, "TEST", &tempTest);
+    if (json_object_get_string(tempTest) != 0) {
         QString test;
-        test = QString::fromStdString(json_object_get_string(TEST));
+        test = QString::fromStdString(json_object_get_string(tempTest));
     }
 
 
@@ -598,7 +602,7 @@ int MainWindow::sendJSON(json_object *jObj){
 }
 
 
-
+/*
 int MainWindow::sendJSON(string KEY, string data){
     char* str;
     int fd, numbytes;
@@ -671,6 +675,4 @@ int MainWindow::sendJSON(string KEY, string data){
 
     ::close(fd);
 
-}
-
-
+}*/
