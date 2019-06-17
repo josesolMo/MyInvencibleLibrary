@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QFileDialog>
 #include <unistd.h>
+#include <sstream>
 
 
 /**
@@ -110,8 +111,13 @@ void MainWindow::on_BotonImg_clicked()
         ///Direccion de la imagen seleccionada
         string DireccionImagen = imagen.toStdString();
 
+        cout << DireccionImagen << endl;
+
         ///Se crea el BinaryData
+        binaryData = "";
         BMPtoBinaryData(DireccionImagen);
+
+        cout << "binaryData: " << binaryData << endl;
 
         int p;
 
@@ -126,6 +132,7 @@ void MainWindow::on_BotonImg_clicked()
         string nombreImagen = DireccionImagen.substr(p+1,DireccionImagen.length()-4);
         ///Imagen comprimida en bits
         string BData = binaryData;
+        cout << "BData: " << BData << endl;
         ///Nombre de la galeria
         QString nomGaleria;
 
@@ -156,6 +163,8 @@ void MainWindow::on_BotonImg_clicked()
 
         string jsonKEY2 = "BINARYDATA";
         string jsonData2 = BData;
+
+        cout << "jsonData2: " << jsonData2 << endl;
 
         string jsonKEY3 = "GALLERY";
         string jsonData3 = nomGaleria.toStdString();
@@ -239,7 +248,7 @@ void MainWindow::on_BotonGal_clicked()
         ///Se envia el JSON, se utiliza de parametro solo el jObject
         sendJSON(jObj);
 
-        if (NombreGaleria=="1"){
+        if (nombreGaleria=="1"){
 
             ui->listWidgetGaleria->addItem(ui->galeria->text());
             ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setCheckState(Qt::Unchecked);
@@ -250,7 +259,7 @@ void MainWindow::on_BotonGal_clicked()
             ui->comboBoxGalerias->addItem("    "+ui->galeria->text());
         }
 
-        else if (NombreGaleria=="0"){
+        else if (nombreGaleria=="0"){
             QMessageBox::information(this, tr("ERROR"), tr("Ya Existe Esta Galeria, Ingrese Una Nueva"));
         }
 
@@ -445,11 +454,39 @@ string MainWindow::decimalToBinary(int d) {
 
 }
 
+
+/**
+ * Convierte un numero decimal a hexadecimal.
+ * @param d
+ * @return h
+ */
+string MainWindow::decimalToHex(int d) {
+
+    if (d == -1) {
+        cout << "\n\nEOF\n\n" << endl;
+        return "";
+    }
+
+    stringstream ss;
+    ss<< hex << d;
+    string h ( ss.str() );
+
+    if (h.length() < 2) {
+        h = "0" + h;
+    }
+
+    return h;
+
+}
+
+
 /**
  * Hace una lectura de los bytes de la imagen .bmp y guarda cada uno, en binario.
  * @return bitString
  */
 string MainWindow::BMPtoBinaryData(string directory) {
+
+    ///restauracion de binaryData
 
     ///Variables para el recorrido
     int byteValue;
@@ -467,7 +504,9 @@ string MainWindow::BMPtoBinaryData(string directory) {
 
                 byteValue = fgetc(file);
 
-                binaryData += decimalToBinary(byteValue);
+                //binaryData += decimalToBinary(byteValue);
+
+                binaryData += decimalToHex(byteValue);
 
             }
             index++;
@@ -552,7 +591,7 @@ int MainWindow::sendJSON(json_object *jObj){
     json_object *parsed_jsonNewGalery = json_tokener_parse(recvBuff);
     json_object_object_get_ex(parsed_jsonNewGalery, "NEWGALLERY", &tempNewGalery);
     if (json_object_get_string(tempNewGalery) != 0) {
-        NombreGaleria = QString::fromStdString(json_object_get_string(tempNewGalery));
+        nombreGaleria = QString::fromStdString(json_object_get_string(tempNewGalery));
     }
 
     struct json_object *tempNewImage;
@@ -560,6 +599,7 @@ int MainWindow::sendJSON(json_object *jObj){
     json_object_object_get_ex(parsed_jsonNewImage, "NEWIMAGE", &tempNewImage);
     if (json_object_get_string(tempNewImage) != 0) {
         newImage = QString::fromStdString(json_object_get_string(tempNewImage));
+        cout << "newImage: " << newImage.toStdString() << endl;
     }
 
     struct json_object *tempConsole;

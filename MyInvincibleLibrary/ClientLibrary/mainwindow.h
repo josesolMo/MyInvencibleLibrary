@@ -40,11 +40,13 @@ public:
     ~MainWindow();
 
     void Table(int FID, int N, int At, int An, int T, int D, int L);
-    string BMPtoBinaryData(string directory);
+
     string decimalToBinary(int d);
+    string decimalToHex(int d);
+    string BMPtoBinaryData(string directory);
 
     int sendJSON(json_object *jObj);
-    int sendJSON(string KEY, string data);
+    //int sendJSON(string KEY, string data);
 
 private slots:
     void on_BotonImg_clicked();
@@ -72,19 +74,18 @@ private:
     ///Instancia estática del contenedor del BinaryData
     string binaryData;
 
-    //Objeto JSON para sendJSON()
+    ///Objeto JSON para sendJSON()
     json_object *jObj;
 
     ///Keys SENDJSON
-    QString NombreGaleria;
-    QString newImage;
-    QString console;
+    QString nombreGaleria, newImage, console;
 
     ///Keys para completar la tabla de comandos
     QString NombreS,AutorS,YearS,SizeS,DescripcionS,FileIDS;
 
-    ///json object
+    ///json object para graficar la tabla
     struct json_object *tablaFinal;
+
 };
 
 #endif // MAINWINDOW_H
