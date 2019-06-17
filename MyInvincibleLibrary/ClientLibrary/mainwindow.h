@@ -48,12 +48,20 @@ public:
     int sendJSON(json_object *jObj);
     //int sendJSON(string KEY, string data);
 
+    void Iniciar();
+
 private slots:
     void on_BotonImg_clicked();
 
     void on_BotonGal_clicked();
 
     void on_BotonEJECUTAR_clicked();
+
+    void on_BotonRolback_clicked();
+
+    void on_BotonCommit_clicked();
+
+    void on_BotonIniciar_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -78,13 +86,19 @@ private:
     json_object *jObj;
 
     ///Keys SENDJSON
-    QString nombreGaleria, newImage, console;
+    QString nombreGaleria, newImage, console, iniciar, rollBack, commit;
 
     ///Keys para completar la tabla de comandos
     QString NombreS,AutorS,YearS,SizeS,DescripcionS,FileIDS;
 
     ///json object para graficar la tabla
     struct json_object *tablaFinal;
+
+    ///json object para graficar las galerias
+    struct json_object *GaleriasEnBD;
+
+    ///Valor para iniciar el IDE
+    bool ValorInicial;
 
 };
 

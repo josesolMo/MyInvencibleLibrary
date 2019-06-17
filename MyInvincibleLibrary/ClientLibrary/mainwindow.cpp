@@ -22,7 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Library");
 
     ///Columnas
-    Table (1,1,1,1,1,1,1);
+    //Table (1,1,1,1,1,1,1);
+
+    ValorInicial=false;
 
 }
 
@@ -103,121 +105,134 @@ void MainWindow::Table(int FID, int N, int At, int An, int T, int D, int L){
 void MainWindow::on_BotonImg_clicked()
 {
 
-    if (ui->comboBoxGalerias->count()>0){
+    if (ValorInicial==true){
 
-        ///Busca la imagen
-        QString imagen = QFileDialog::getOpenFileName(this, "Imagen - Open file", "", "Imagen Files (*.bmp);;All Files (*.*)");
+        if (ui->comboBoxGalerias->count()>0){
 
-        ///Direccion de la imagen seleccionada
-        string DireccionImagen = imagen.toStdString();
+            ///Busca la imagen
+            QString imagen = QFileDialog::getOpenFileName(this, "Imagen - Open file", "", "Imagen Files (*.bmp);;All Files (*.*)");
 
-        cout << DireccionImagen << endl;
-
-        ///Se crea el BinaryData
-        binaryData = "";
-        BMPtoBinaryData(DireccionImagen);
-
-        cout << "binaryData: " << binaryData << endl;
-
-        int p;
-
-        for (int i=0; i<DireccionImagen.length();i++){
-            if (DireccionImagen[i] == '/'){
-                p=i;
+            if (imagen == 0){
+                cout<<"Imagen sin seleccionar"<<endl;
             }
-        }
+
+            else {
+
+                ///Direccion de la imagen seleccionada
+                string DireccionImagen = imagen.toStdString();
+
+                cout << DireccionImagen << endl;
+
+                ///Se crea el BinaryData
+                binaryData = "";
+                BMPtoBinaryData(DireccionImagen);
+
+                cout << "binaryData: " << binaryData << endl;
+
+                int p;
+
+                for (int i=0; i<DireccionImagen.length();i++){
+                    if (DireccionImagen[i] == '/'){
+                        p=i;
+                    }
+                }
 
 
-        ///Nombre de la imagen
-        string nombreImagen = DireccionImagen.substr(p+1,DireccionImagen.length()-4);
-        ///Imagen comprimida en bits
-        string BData = binaryData;
-        cout << "BData: " << BData << endl;
-        ///Nombre de la galeria
-        QString nomGaleria;
-
-        ///Indice de la galeria
-        int indice = 0;
-
-        for (int i=0; i<ui->listWidgetGaleria->count();i++){
-
-           if ("    "+(ui->listWidgetGaleria->item(i)->text())==ui->comboBoxGalerias->currentText()){
-
-                ///Indice
-                indice=i;
-
+                ///Nombre de la imagen
+                string nombreImagen = DireccionImagen.substr(p+1,DireccionImagen.length()-4);
+                ///Imagen comprimida en bits
+                string BData = binaryData;
+                cout << "BData: " << BData << endl;
                 ///Nombre de la galeria
-                nomGaleria = ui->listWidgetGaleria->item(i)->text();
+                QString nomGaleria;
 
-                i=ui->listWidgetGaleria->count()+1;
-            }
+                ///Indice de la galeria
+                int indice = 0;
 
-        }
+                for (int i=0; i<ui->listWidgetGaleria->count();i++){
 
-        ///Objeto JSON
-        jObj = json_object_new_object();
+                   if ("    "+(ui->listWidgetGaleria->item(i)->text())==ui->comboBoxGalerias->currentText()){
 
-        ///Variables para agregar como Key y Data
-        string jsonKEY = "NEWIMAGE";
-        string jsonData = nombreImagen;
+                        ///Indice
+                        indice=i;
 
-        string jsonKEY2 = "BINARYDATA";
-        string jsonData2 = BData;
+                        ///Nombre de la galeria
+                        nomGaleria = ui->listWidgetGaleria->item(i)->text();
 
-        cout << "jsonData2: " << jsonData2 << endl;
+                        i=ui->listWidgetGaleria->count()+1;
+                    }
 
-        string jsonKEY3 = "GALLERY";
-        string jsonData3 = nomGaleria.toStdString();
+                }
 
-        ///Se agrega la informacion en el JSON
-        json_object *jstring = json_object_new_string(jsonData.c_str());
-        json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+                ///Objeto JSON
+                jObj = json_object_new_object();
 
-        json_object *jstring2 = json_object_new_string(jsonData2.c_str());
-        json_object_object_add(jObj,jsonKEY2.c_str(), jstring2);
+                ///Variables para agregar como Key y Data
+                string jsonKEY = "NEWIMAGE";
+                string jsonData = nombreImagen;
 
-        json_object *jstring3 = json_object_new_string(jsonData3.c_str());
-        json_object_object_add(jObj,jsonKEY3.c_str(), jstring3);
+                string jsonKEY2 = "BINARYDATA";
+                string jsonData2 = BData;
 
-        ///Se envia el JSON, se utiliza de parametro solo el jObject
-        sendJSON(jObj);
+                cout << "jsonData2: " << jsonData2 << endl;
 
-        if (newImage=="1"){
+                string jsonKEY3 = "GALLERY";
+                string jsonData3 = nomGaleria.toStdString();
 
-            ui->listWidgetGaleria->insertItem(indice+1,"           "+QString::fromStdString(nombreImagen));
+                ///Se agrega la informacion en el JSON
+                json_object *jstring = json_object_new_string(jsonData.c_str());
+                json_object_object_add(jObj,jsonKEY.c_str(), jstring);
 
-            VentanaImagen = new QGraphicsScene(this);
+                json_object *jstring2 = json_object_new_string(jsonData2.c_str());
+                json_object_object_add(jObj,jsonKEY2.c_str(), jstring2);
 
-            ///Imagen que se mostrara
-            Imag = new QPixmap(imagen);
+                json_object *jstring3 = json_object_new_string(jsonData3.c_str());
+                json_object_object_add(jObj,jsonKEY3.c_str(), jstring3);
 
-            ///crear View
-            view = new QGraphicsView(VentanaImagen);
-            view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-            view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-            view->setFixedSize(Imag->width(),Imag->height());
-            VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
-            VentanaImagen->backgroundBrush();
+                ///Se envia el JSON, se utiliza de parametro solo el jObject
+                sendJSON(jObj);
 
-            //Muestra el view
-            view->show();
+                if (newImage=="1"){
 
-            VentanaImagen->addPixmap(*Imag);
+                    ui->listWidgetGaleria->insertItem(indice+1,"           "+QString::fromStdString(nombreImagen));
 
-        }
+                    VentanaImagen = new QGraphicsScene(this);
 
-        else if (newImage=="0"){
-            QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Nueva Imagen"));
+                    ///Imagen que se mostrara
+                    Imag = new QPixmap(imagen);
+
+                    ///crear View
+                    view = new QGraphicsView(VentanaImagen);
+                    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+                    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+                    view->setFixedSize(Imag->width(),Imag->height());
+                    VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
+                    VentanaImagen->backgroundBrush();
+
+                    //Muestra el view
+                    view->show();
+
+                    VentanaImagen->addPixmap(*Imag);
+
+                }
+
+                else if (newImage=="0"){
+                    QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Nueva Imagen"));
+                }
+
+                else{
+                    QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Nueva Imagen"));
+                }
+             }
         }
 
         else{
-            QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Nueva Imagen"));
+            QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Galeria"));
         }
-
     }
 
     else{
-        QMessageBox::information(this, tr("ERROR"), tr("Selecione Una Galeria"));
+        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón Inicio"));
     }
 
 }
@@ -230,45 +245,51 @@ void MainWindow::on_BotonImg_clicked()
  */
 void MainWindow::on_BotonGal_clicked()
 {
+    if (ValorInicial==true){
 
-    if (ui->galeria->text()!=0){
+        if (ui->galeria->text()!=0){
 
 
-        ///Objeto JSON
-        jObj = json_object_new_object();
+            ///Objeto JSON
+            jObj = json_object_new_object();
 
-        ///Variables para agregar como Key y Data
-        string jsonKEY = "NEWGALLERY";
-        string jsonData = ui->galeria->text().toStdString();
+            ///Variables para agregar como Key y Data
+            string jsonKEY = "NEWGALLERY";
+            string jsonData = ui->galeria->text().toStdString();
 
-        ///Se agrega la informacion en el JSON
-        json_object *jstring = json_object_new_string(jsonData.c_str());
-        json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+            ///Se agrega la informacion en el JSON
+            json_object *jstring = json_object_new_string(jsonData.c_str());
+            json_object_object_add(jObj,jsonKEY.c_str(), jstring);
 
-        ///Se envia el JSON, se utiliza de parametro solo el jObject
-        sendJSON(jObj);
+            ///Se envia el JSON, se utiliza de parametro solo el jObject
+            sendJSON(jObj);
 
-        if (nombreGaleria=="1"){
+            if (nombreGaleria=="1"){
 
-            ui->listWidgetGaleria->addItem(ui->galeria->text());
-            ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setCheckState(Qt::Unchecked);
-            QColor *color = new QColor;
-            color->setRgb(23,58,216);
-            ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setTextColor(*color);
+                ui->listWidgetGaleria->addItem(ui->galeria->text());
+                ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setCheckState(Qt::Unchecked);
+                QColor *color = new QColor;
+                color->setRgb(23,58,216);
+                ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setTextColor(*color);
 
-            ui->comboBoxGalerias->addItem("    "+ui->galeria->text());
+                ui->comboBoxGalerias->addItem("    "+ui->galeria->text());
+            }
+
+            else if (nombreGaleria=="0"){
+                QMessageBox::information(this, tr("ERROR"), tr("Ya Existe Esta Galeria, Ingrese Una Nueva"));
+            }
+
+            ui->galeria->setText("");
+
         }
 
-        else if (nombreGaleria=="0"){
-            QMessageBox::information(this, tr("ERROR"), tr("Ya Existe Esta Galeria, Ingrese Una Nueva"));
+        else{
+            QMessageBox::information(this, tr("ERROR"), tr("Ingrese Una Galeria Nueva"));
         }
-
-        ui->galeria->setText("");
-
     }
 
     else{
-        QMessageBox::information(this, tr("ERROR"), tr("Ingrese Una Galeria Nueva"));
+        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón Inicio"));
     }
 
 }
@@ -281,18 +302,166 @@ void MainWindow::on_BotonGal_clicked()
  */
 void MainWindow::on_BotonEJECUTAR_clicked(){
 
-    ///Define la cantidad de filas del tableWidget a 0
-    ui->tableWidget->setRowCount(0);
+    if (ValorInicial==true){
 
-    ///Cuando el textBox (LineaCMD) tiene algo escrito.
-    if (ui->LineaCMD->toPlainText()!=0){
+        ///Define la cantidad de filas del tableWidget a 0
+        ui->tableWidget->setRowCount(0);
+
+        ///Cuando el textBox (LineaCMD) tiene algo escrito.
+        if (ui->LineaCMD->toPlainText()!=0){
+
+            ///Objeto JSON por enviar
+            jObj = json_object_new_object();
+
+            ///Variables para agregar como Key y Data
+            string jsonKEY = "CONSOLE";
+            string jsonData = ui->LineaCMD->toPlainText().toStdString();
+
+            ///Se agrega la informacion en el JSON
+            json_object *jstring = json_object_new_string(jsonData.c_str());
+            json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+            ///Se envia el JSON, se utiliza de parametro solo el jObject
+            sendJSON(jObj);
+
+            ///"console" se verifica en la funcion sendJSON y se modifica segun lo recibido
+
+            ///Error de referencia en MetadataDB
+            if (console == "-2") {
+                QMessageBox::warning(this, tr("ERROR"), tr("No se ha encontrado algún elemento referenciado."));
+            }
+            ///
+            else if (console == "-1" || console == "" ) {
+                QMessageBox::warning(this, tr("ERROR"), tr("Por favor ingrese una correcta sintaxis SQL."));
+                ui->LineaCMD->setText("");
+            }
+            ///Sintax error en MetadataDB
+            else if (console == "0") {
+                QMessageBox::warning(this, tr("ERROR"), tr("Error en Sintaxis"));
+            }
+            ///Confirmacion de operacion completada en Cliemte
+            else if (console == "2") {
+                QMessageBox::information(this, tr("SUCCESS"), tr("Se ha completado el comando correctamente."));
+            }
+
+            ///else: Graficacion de la tabla con el json de array de arrays proveniente de MetadataDB
+            else {
+
+                ///Cantidad de elementos en el array
+                int cantArray = json_object_array_length(tablaFinal);
+
+
+                ///Para Saber cuales columnas aparecen en la tabla
+                int f,n,a,c,t,d;
+                for(int ii=0;ii<cantArray;ii++){
+
+                    struct json_object *COLUMNA;
+                    COLUMNA = json_object_array_get_idx(tablaFinal,ii);
+
+                    string test = json_object_to_json_string(json_object_array_get_idx(COLUMNA,0));
+
+                    if (test=="\"FILENAME\""){ f=1; }
+
+                    if (test=="\"NAME\""){ n=1; }
+
+                    if (test=="\"AUTHOR\""){ a=1; }
+
+                    if (test=="\"YEAR\""){ c=1; }
+
+                    if (test=="\"SIZE\""){ t=1; }
+
+                    if (test=="\"DESCRIPTION\""){ d=1;}
+
+                }
+
+                Table(f,n,a,c,t,d,1);
+
+                bool add=true;
+
+
+                for(int i=0;i<cantArray;i++){
+
+                    ///Toma la columna por indice
+                    struct json_object *columnaG;
+                    columnaG = json_object_array_get_idx(tablaFinal,i);
+
+                    int fila = json_object_array_length(columnaG);
+
+                    string test = json_object_to_json_string(json_object_array_get_idx(columnaG,0));
+
+                    for(int j=0; j<(fila-1); j++){
+
+
+
+                        if (add==true){
+                            ///Inserta un nuevo dato
+                            ui->tableWidget->insertRow(j);
+                        }
+
+
+                        ///Dato que se graficara
+                        string datoF = json_object_to_json_string(json_object_array_get_idx(columnaG,j+1));
+                        string datoX = datoF.substr(1,datoF.length()-2);
+                        QString dato = QString::fromStdString(datoX);
+
+                        if (test=="\"FILENAME\""){
+                            ui->tableWidget->setItem(j,FileID,new QTableWidgetItem(dato));
+                        }
+
+                        if (test=="\"NAME\""){
+                            ui->tableWidget->setItem(j,Nombre,new QTableWidgetItem(dato));
+                        }
+
+                        if (test=="\"AUTHOR\""){
+                            ui->tableWidget->setItem(j,Autor,new QTableWidgetItem(dato));
+                        }
+
+                        if (test=="\"YEAR\""){
+                            ui->tableWidget->setItem(j,Year,new QTableWidgetItem(dato));
+                        }
+
+                        if (test=="\"SIZE\""){
+                            ui->tableWidget->setItem(j,Size,new QTableWidgetItem(dato));
+                        }
+
+                        if (test=="\"DESCRIPTION\""){
+                            ui->tableWidget->setItem(j,Descripcion,new QTableWidgetItem(dato));
+                        }
+
+                    }
+
+                    add=false;
+
+                }
+                ui->LineaCMD->setText("");
+            }
+        }
+        else{
+            QMessageBox::warning(this, tr("ERROR"), tr("Por favor ingrese una correcta sintaxis SQL."));
+            ui->LineaCMD->setText("");
+        }
+
+    }
+
+
+    else{
+        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón Inicio"));
+    }
+
+}
+
+
+void MainWindow::on_BotonRolback_clicked()
+{
+
+    if (ValorInicial==true){
 
         ///Objeto JSON por enviar
         jObj = json_object_new_object();
 
         ///Variables para agregar como Key y Data
-        string jsonKEY = "CONSOLE";
-        string jsonData = ui->LineaCMD->toPlainText().toStdString();
+        string jsonKEY = "ROLLBACK";
+        string jsonData = "1";
 
         ///Se agrega la informacion en el JSON
         json_object *jstring = json_object_new_string(jsonData.c_str());
@@ -301,116 +470,120 @@ void MainWindow::on_BotonEJECUTAR_clicked(){
         ///Se envia el JSON, se utiliza de parametro solo el jObject
         sendJSON(jObj);
 
-        ///"console" se verifica en la funcion sendJSON y se modifica segun lo recibido
+        ui->listWidgetGaleria->clear();
 
-        ///Error de referencia en MetadataDB
-        if (console == "-2") {
-            QMessageBox::warning(this, tr("ERROR"), tr("No se ha encontrado algún elemento referenciado."));
-        }
-        ///
-        else if (console == "-1" || console == "" ) {
-            QMessageBox::warning(this, tr("ERROR"), tr("Por favor ingrese una correcta sintaxis SQL."));
-            ui->LineaCMD->setText("");
-        }
-        ///Sintax error en MetadataDB
-        else if (console == "0") {
-            QMessageBox::warning(this, tr("ERROR"), tr("Error en Sintaxis"));
-        }
-        ///Confirmacion de operacion completada en Cliemte
-        else if (console == "2") {
-            QMessageBox::information(this, tr("SUCCESS"), tr("Se ha completado el comando correctamente."));
-        }
+        on_BotonIniciar_clicked();
 
-        ///else: Graficacion de la tabla con el json de array de arrays proveniente de MetadataDB
-        else {
-
-            ///Cantidad de elementos en el array
-            int cantArray = json_object_array_length(tablaFinal);
-
-
-            ///Para Saber cuales columnas aparecen en la tabla
-            int f,n,a,c,t,d;
-            for(int ii=0;ii<cantArray;ii++){
-
-                struct json_object *COLUMNA;
-                COLUMNA = json_object_array_get_idx(tablaFinal,ii);
-
-                string test = json_object_to_json_string(json_object_array_get_idx(COLUMNA,0));
-
-                if (test=="\"FILENAME\""){ f=1; }
-
-                if (test=="\"NAME\""){ n=1; }
-
-                if (test=="\"AUTHOR\""){ a=1; }
-
-                if (test=="\"YEAR\""){ c=1; }
-
-                if (test=="\"SIZE\""){ t=1; }
-
-                if (test=="\"DESCRIPTION\""){ d=1;}
-
-            }
-
-            Table(f,n,a,c,t,d,1);
-
-            bool add=true;
-
-
-            for(int i=0;i<cantArray;i++){
-
-                ///Toma la columna por indice
-                struct json_object *columnaG;
-                columnaG = json_object_array_get_idx(tablaFinal,i);
-
-                int fila = json_object_array_length(columnaG);
-
-                string test = json_object_to_json_string(json_object_array_get_idx(columnaG,0));
-
-                for(int j=0; j<(fila-1); j++){
-
-
-
-                    if (add==true){
-                        ///Inserta un nuevo dato
-                        ui->tableWidget->insertRow(j);
-                    }
-
-                    string datoF = json_object_to_json_string(json_object_array_get_idx(columnaG,j+1));
-                    QString dato = QString::fromStdString(datoF);
-
-                    if (test=="\"FILENAME\""){
-                        ui->tableWidget->setItem(j,FileID,new QTableWidgetItem(dato));
-                    }
-
-                    if (test=="\"NAME\""){
-                        ui->tableWidget->setItem(j,Nombre,new QTableWidgetItem(dato));
-                    }
-
-                    if (test=="\"AUTHOR\""){
-                        ui->tableWidget->setItem(j,Autor,new QTableWidgetItem(dato));
-                    }
-
-                    if (test=="\"YEAR\""){
-                        ui->tableWidget->setItem(j,Year,new QTableWidgetItem(dato));
-                    }
-
-                    if (test=="\"SIZE\""){
-                        ui->tableWidget->setItem(j,Size,new QTableWidgetItem(dato));
-                    }
-
-                    if (test=="\"DESCRIPTION\""){
-                        ui->tableWidget->setItem(j,Descripcion,new QTableWidgetItem(dato));
-                    }
-
-                }
-
-                add=false;
-
-            }
-        }
     }
+    else{
+        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón Inicio"));
+    }
+
 }
 
+void MainWindow::on_BotonCommit_clicked()
+{
+    if (ValorInicial==true){
+
+        ///Objeto JSON por enviar
+        jObj = json_object_new_object();
+
+        ///Variables para agregar como Key y Data
+        string jsonKEY = "COMMIT";
+        string jsonData = "1";
+
+        ///Se agrega la informacion en el JSON
+        json_object *jstring = json_object_new_string(jsonData.c_str());
+        json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+        ///Se envia el JSON, se utiliza de parametro solo el jObject
+        sendJSON(jObj);
+
+    }
+    else{
+        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón de Inicio"));
+    }
+
+}
+
+void MainWindow::on_BotonIniciar_clicked()
+{
+    ValorInicial=true;
+
+    ui->listWidgetGaleria->clear();
+
+    ///Objeto JSON por enviar
+    jObj = json_object_new_object();
+
+    ///Variables para agregar como Key y Data
+    string jsonKEY = "INITIAL";
+    string jsonData = "1";
+
+    ///Se agrega la informacion en el JSON
+    json_object *jstring = json_object_new_string(jsonData.c_str());
+    json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+    ///Se envia el JSON, se utiliza de parametro solo el jObject
+    sendJSON(jObj);
+
+    ///Funcion
+    Iniciar();
+}
+
+
+void MainWindow::Iniciar(){
+
+    if (iniciar == "0") {
+        ValorInicial=true;
+    }
+
+    ///else: Graficacion de las galerias con el json de array de arrays proveniente de MetadataDB
+    else {
+
+        ValorInicial=true;
+
+        ///Cantidad de elementos en el array
+        int cantArray = json_object_array_length(GaleriasEnBD);
+
+        for(int i=0;i<cantArray;i++){
+
+            ///Toma la columna por indice
+            struct json_object *columnaG;
+            columnaG = json_object_array_get_idx(GaleriasEnBD,i);
+
+            int fila = json_object_array_length(columnaG);
+
+            string test = json_object_to_json_string(json_object_array_get_idx(columnaG,0));
+
+            for(int j=0; j<fila; j++){
+
+                ///Valor del String de las galerias e imagenes
+                string datoF = json_object_to_json_string(json_object_array_get_idx(columnaG,j));
+                string datoX = datoF.substr(1,datoF.length()-2);
+                QString dato = QString::fromStdString(datoX);
+
+                ///Agrega una galeria (0,0)
+                if (j==0){
+
+                    ///Lo agrega al comboBox
+                    ui->comboBoxGalerias->addItem("    "+dato);
+
+                    ///Lo agrega  a la listaGaleria
+                    ui->listWidgetGaleria->addItem(dato);
+                    ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setCheckState(Qt::Unchecked);
+                    QColor *color = new QColor;
+                    color->setRgb(23,58,216);
+                    ui->listWidgetGaleria->item(ui->listWidgetGaleria->count()-1)->setTextColor(*color);
+                }
+
+                ///Agrega la imagen (x,y)
+                else{ ui->listWidgetGaleria->addItem("           "+dato);}
+            }
+
+        }
+    }
+
+}
 
 
 ///////////////////////////////////////////Conversion de imagenes///////////////////////////////////////////
@@ -624,12 +797,52 @@ int MainWindow::sendJSON(json_object *jObj){
 
     }
 
+
     struct json_object *tempTest;
     json_object *parsed_jsonTest = json_tokener_parse(recvBuff);
     json_object_object_get_ex(parsed_jsonTest, "TEST", &tempTest);
     if (json_object_get_string(tempTest) != 0) {
         QString test;
         test = QString::fromStdString(json_object_get_string(tempTest));
+    }
+
+
+    struct json_object *tempIniciar;
+    json_object *parsed_jsonIniciar = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonIniciar, "INITIAL", &tempIniciar);
+    if (json_object_get_string(tempIniciar) != 0) {
+
+        ///Toma el primer array
+        struct json_object *firstArray;
+        firstArray = json_object_array_get_idx(tempIniciar,1);
+
+        ///Toma el primer dato del primer array
+        struct json_object *check00;
+        check00 = json_object_array_get_idx(firstArray,1);
+
+        ///Se guarda check00 en el string para ser comparado y mostrar en cliente
+        iniciar = json_object_to_json_string(check00);
+        cout << "Initial (0,0): " << iniciar.toStdString() << endl;
+
+        ///Guarda en la clase el array de arrays proveniente de MetadataDB
+        GaleriasEnBD=tempIniciar;
+
+    }
+
+
+    struct json_object *tempCommit;
+    json_object *parsed_jsonCommit = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonCommit, "COMMIT", &tempCommit);
+    if (json_object_get_string(tempCommit) != 0) {
+        commit = QString::fromStdString(json_object_get_string(tempCommit));
+    }
+
+
+    struct json_object *tempRollback;
+    json_object *parsed_jsonRollback = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonRollback, "ROLLBACK", &tempRollback);
+    if (json_object_get_string(tempRollback) != 0) {
+        rollBack = QString::fromStdString(json_object_get_string(tempRollback));
     }
 
 
@@ -716,3 +929,5 @@ int MainWindow::sendJSON(string KEY, string data){
     ::close(fd);
 
 }*/
+
+
