@@ -289,10 +289,103 @@ void MainWindow::on_BotonGal_clicked()
     }
 
     else{
-        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón Inicio"));
+        QMessageBox::warning(this, tr("ERROR"), tr("Presione el Botón Inicio"));
     }
 
 }
+
+
+/**
+ * Elimina galerias.
+ * @param -
+ * @return grafication
+ */
+void MainWindow::on_BotonGal_Delete_clicked()
+{
+
+    if (ValorInicial==true){
+
+        bool temporal;
+
+        for (int i=0; i<ui->listWidgetGaleria->count();i++){
+
+            if (ui->listWidgetGaleria->item(i)->text()==ui->galeria->text()){
+
+                ///Objeto JSON
+                jObj = json_object_new_object();
+
+                ///Variables para agregar como Key y Data
+                string jsonKEY = "DELETEGALLERY";
+                string jsonData = (ui->galeria->text()).toStdString();
+
+                ///Se agrega la informacion en el JSON
+                json_object *jstring = json_object_new_string(jsonData.c_str());
+                json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+                ///Se envia el JSON, se utiliza de parametro solo el jObject
+                sendJSON(jObj);
+
+                temporal=true;
+
+                ui->galeria->setText("");
+                i=ui->listWidgetGaleria->count()+1;
+
+                on_BotonIniciar_clicked();
+
+            }
+
+       }
+
+       if (temporal==false){
+           QMessageBox::warning(this, tr("ERROR"), tr("Galeria no existente"));
+           ui->galeria->setText("");
+       }
+
+
+        /*int Galeria,CantImagenes,temporal;
+        for (int i=0; i<ui->listWidgetGaleria->count();i++){
+
+            if (ui->listWidgetGaleria->item(i)->text()==ui->galeria->text()){
+                Galeria=i;
+                temporal=1;
+                cout<<"Galeria: "<<i<<endl;
+                i+=1;
+            }
+
+            if (temporal==1){
+
+                QString itemX = ui->listWidgetGaleria->item(i)->text();
+                string itemF = itemX.toStdString();
+
+                if (itemF.substr(0,3)=="   "){
+                    CantImagenes=i;
+                }
+                else{
+                    i=ui->listWidgetGaleria->count()+1;
+                }
+
+            }
+        }
+
+        cout<<"Cantidad de Img: "<<CantImagenes<<endl;
+
+        if (CantImagenes==1){
+            ui->listWidgetGaleria->takeItem(Galeria);
+        }
+        else{
+            for (int j=Galeria;j<=CantImagenes;j++){
+                cout<<"j: "<<j<<endl;
+                ui->listWidgetGaleria->takeItem(j);
+            }
+        }*/
+    }
+    else{
+        QMessageBox::warning(this, tr("ERROR"), tr("Presione el Botón Inicio"));
+    }
+
+}
+
+
 
 
 /**
@@ -405,7 +498,48 @@ void MainWindow::on_BotonEJECUTAR_clicked(){
                         QString dato = QString::fromStdString(datoX);
 
                         if (test=="\"FILENAME\""){
+
                             ui->tableWidget->setItem(j,FileID,new QTableWidgetItem(dato));
+
+                            ///Se crea para visualizar la ventana con la imagen
+
+                            /*///Objeto JSON por enviar
+                            jObj = json_object_new_object();
+
+                            ///Variables para agregar como Key y Data
+                            string jsonKEY = "SELECTIMAGE";
+                            string jsonData = datoX;
+
+                            ///Se agrega la informacion en el JSON
+                            json_object *jstring = json_object_new_string(jsonData.c_str());
+                            json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+                            ///Se envia el JSON, se utiliza de parametro solo el jObject
+                            sendJSON(jObj);
+
+                            string direccion = hexDataToBMP(datoX,selectImageHexa.toStdString());
+
+
+                            VentanaImagen = new QGraphicsScene(this);
+
+                            ///Imagen que se mostrara
+                            Imag = new QPixmap(direccion.c_str());
+
+                            ///crear View
+                            view = new QGraphicsView(VentanaImagen);
+                            view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+                            view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+                            view->setFixedSize(Imag->width(),Imag->height());
+                            VentanaImagen->setSceneRect(0,0,Imag->width(),Imag->height());
+                            VentanaImagen->backgroundBrush();
+
+                            //Muestra el view
+                            view->show();
+
+                            VentanaImagen->addPixmap(*Imag);*/
+
+
+
                         }
 
                         if (test=="\"NAME\""){
@@ -426,15 +560,16 @@ void MainWindow::on_BotonEJECUTAR_clicked(){
 
                         if (test=="\"DESCRIPTION\""){
                             ui->tableWidget->setItem(j,Descripcion,new QTableWidgetItem(dato));
+
                         }
 
                     }
-
                     add=false;
 
                 }
                 ui->LineaCMD->setText("");
             }
+
         }
         else{
             QMessageBox::warning(this, tr("ERROR"), tr("Por favor ingrese una correcta sintaxis SQL."));
@@ -445,7 +580,7 @@ void MainWindow::on_BotonEJECUTAR_clicked(){
 
 
     else{
-        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón Inicio"));
+        QMessageBox::warning(this, tr("ERROR"), tr("Presione el Botón Inicio"));
     }
 
 }
@@ -470,13 +605,16 @@ void MainWindow::on_BotonRolback_clicked()
         ///Se envia el JSON, se utiliza de parametro solo el jObject
         sendJSON(jObj);
 
-        ui->listWidgetGaleria->clear();
+        if (rollBack=="1"){
+            on_BotonIniciar_clicked();
+            QMessageBox::information(this, tr("ERROR"), tr("RollBack realizado exitosamente"));
+        }
+        else{ QMessageBox::warning(this, tr("ERROR"), tr("No se pudo realizar el RollBack"));}
 
-        on_BotonIniciar_clicked();
 
     }
     else{
-        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón Inicio"));
+        QMessageBox::warning(this, tr("ERROR"), tr("Presione el Botón Inicio"));
     }
 
 }
@@ -499,12 +637,60 @@ void MainWindow::on_BotonCommit_clicked()
         ///Se envia el JSON, se utiliza de parametro solo el jObject
         sendJSON(jObj);
 
+        if (commit=="1"){QMessageBox::information(this, tr("ERROR"), tr("Commit realizado exitosamente"));}
+        else{ QMessageBox::warning(this, tr("ERROR"), tr("No se pudo realizar el Commit"));}
+
     }
     else{
-        QMessageBox::warning(this, tr("ERROR"), tr("Precione el Botón de Inicio"));
+        QMessageBox::warning(this, tr("ERROR"), tr("Presione el Botón de Inicio"));
     }
 
 }
+
+
+void MainWindow::on_BotonLink_clicked()
+{
+
+    if (ValorInicial==true){
+
+
+        bool temporal =false;
+        if (temporal==true){
+
+            /*///Objeto JSON por enviar
+            jObj = json_object_new_object();
+
+            ///Variables para agregar como Key y Data
+            string jsonKEY = "SELECTIMAGE";
+            string jsonData = IDdato;
+
+            ///Se agrega la informacion en el JSON
+            json_object *jstring = json_object_new_string(jsonData.c_str());
+            json_object_object_add(jObj,jsonKEY.c_str(), jstring);
+
+            ///Se envia el JSON, se utiliza de parametro solo el jObject
+            sendJSON(jObj);
+
+            if (selectImageHexa!="0"){
+
+                cout<<"Imagen: "<<endl;
+
+            }
+
+            else{ QMessageBox::warning(this, tr("ERROR"), tr("La imagen no es posible graficar"));}
+*/
+        }
+
+        else{ QMessageBox::warning(this, tr("ERROR"), tr("Seleccione una imagen"));}
+
+    }
+    else{
+        QMessageBox::warning(this, tr("ERROR"), tr("Presione el Botón de Inicio"));
+    }
+
+
+}
+
 
 void MainWindow::on_BotonIniciar_clicked()
 {
@@ -533,7 +719,7 @@ void MainWindow::on_BotonIniciar_clicked()
 
 void MainWindow::Iniciar(){
 
-    if (iniciar == "0") {
+    if (iniciar == "\"0\"") {
         ValorInicial=true;
     }
 
@@ -700,6 +886,110 @@ string MainWindow::BMPtoBinaryData(string directory) {
 }
 
 
+/**
+ * Toma el hexData de la imagen y la convierte a .bmp.
+ * Es guardada en el folder "TemporalImageContainer".
+ * @return bool
+ */
+string MainWindow::hexDataToBMP(string name, string hexData) {
+
+    ///Variables para la conversion
+    int byteValue;
+    int index = 0;
+    string actualByte;
+
+    //cout << hexData << endl;
+
+    float totalByteLength = hexData.length() / 2;
+
+    //actualImage->setByteQuantity(totalByteLength);
+
+    //cout << "totalByteLength: " << totalByteLength << endl;
+
+    ///Archivo nuevo por crear y escribir
+    string newFileName = "/home/edgargonza/Desktop/MyInvicibleLibrary/fH_" + name;
+    FILE* newFile = fopen(newFileName.c_str(),"a");
+
+
+    ///Recorrera el binString hasta que desaparezca
+    while (hexData.length() > 0) {
+
+        if (true) {
+
+            if (hexData.length() == 8) {
+
+                ///Elimina los ultimos bits del bitString
+                hexData.erase(0, 2);
+
+                ///Ingresa EOF al final del nuevo archivo
+                fputc(EOF, newFile);
+
+                //cout << index << ": " << EOF << endl;
+
+            } else {
+
+
+
+                ///Lectura del bitString
+
+                ///Toma los primeros 8 bits del bitString
+                actualByte = hexData.substr(0, 2);
+
+                ///Elimina esos bits del bitString
+                hexData.erase(0, 2);
+
+                ///Convierte el byte (2 bits) a decimal
+                byteValue = hexToDecimal(actualByte);
+
+                ///Escribe el valor al nuevo archivo
+                fputc(byteValue, newFile);
+
+                //cout << index << ": " << byteValue << endl;
+
+            }
+
+        }
+
+        index++;
+
+        ///Muestra el porcentaje completado de la conversion
+        if (index % 1000 == 0) {
+
+            float percentageOfCompletition = index/(totalByteLength) * 100;
+            //cout << "Recreation Completed: " << fixed << setprecision(2) << percentageOfCompletition << " %" << endl;
+
+        }
+
+    }
+
+    //cout << "Recreation Completed: " << 100.00 << "%" << endl;
+    //cout << "\nRecreation complete: " + newFileName + " created.\n" << endl;
+
+    fclose(newFile);
+
+    return newFileName;
+}
+
+
+/**
+ * Convierte un numero hexadecimal a decimal.
+ * @param h
+ * @return d
+ */
+int MainWindow::hexToDecimal(string h) {
+
+    unsigned int d;
+
+    h = "0x" + h;
+
+    stringstream ss;
+    ss << std::hex << h;
+    ss >> d;
+
+    return d;
+}
+
+
 
 ///////////////////////////////////////////Conversion de imagenes///////////////////////////////////////////
 
@@ -732,7 +1022,7 @@ int MainWindow::sendJSON(json_object *jObj){
     {
         client.sin_family = AF_INET;
         client.sin_port = htons(PORT);
-        client.sin_addr.s_addr = inet_addr("192.168.100.4"); //192.168.100.
+        client.sin_addr.s_addr = inet_addr("192.168.100.20"); //192.168.100.
         memset(client.sin_zero, '\0', sizeof(client.sin_zero));
     }
 
@@ -782,14 +1072,18 @@ int MainWindow::sendJSON(json_object *jObj){
 
         ///Toma el primer array
         struct json_object *firstArray;
-        firstArray = json_object_array_get_idx(tempConsole,1);
+        firstArray = json_object_array_get_idx(tempConsole,0);
 
         ///Toma el primer dato del primer array
         struct json_object *check00;
-        check00 = json_object_array_get_idx(firstArray,1);
+        check00 = json_object_array_get_idx(firstArray,0);
+
+        ///String
+        string consoleX = json_object_to_json_string(check00);
+        string dato = consoleX.substr(1,consoleX.length()-2);
 
         ///Se guarda check00 en el string para ser comparado y mostrar en cliente
-        console = json_object_to_json_string(check00);
+        console = QString::fromStdString(dato);
         cout << "console (0,0): " << console.toStdString() << endl;
 
         ///Guarda en la clase el array de arrays proveniente de MetadataDB
@@ -814,11 +1108,11 @@ int MainWindow::sendJSON(json_object *jObj){
 
         ///Toma el primer array
         struct json_object *firstArray;
-        firstArray = json_object_array_get_idx(tempIniciar,1);
+        firstArray = json_object_array_get_idx(tempIniciar,0);
 
         ///Toma el primer dato del primer array
         struct json_object *check00;
-        check00 = json_object_array_get_idx(firstArray,1);
+        check00 = json_object_array_get_idx(firstArray,0);
 
         ///Se guarda check00 en el string para ser comparado y mostrar en cliente
         iniciar = json_object_to_json_string(check00);
@@ -843,6 +1137,23 @@ int MainWindow::sendJSON(json_object *jObj){
     json_object_object_get_ex(parsed_jsonRollback, "ROLLBACK", &tempRollback);
     if (json_object_get_string(tempRollback) != 0) {
         rollBack = QString::fromStdString(json_object_get_string(tempRollback));
+    }
+
+
+    struct json_object *tempDeleteGallery;
+    json_object *parsed_jsonDEGALLERY = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonDEGALLERY, "DELETEGALLERY", &tempDeleteGallery);
+    if (json_object_get_string(tempDeleteGallery) != 0) {
+        QString deleteGallery;
+        deleteGallery = QString::fromStdString(json_object_get_string(tempDeleteGallery));
+    }
+
+
+    struct json_object *tempSelectImage;
+    json_object *parsed_jsonSelectImage = json_tokener_parse(recvBuff);
+    json_object_object_get_ex(parsed_jsonSelectImage, "SELECIMAGE", &tempSelectImage);
+    if (json_object_get_string(tempDeleteGallery) != 0) {
+        selectImageHexa = QString::fromStdString(json_object_get_string(tempSelectImage));
     }
 
 
@@ -929,5 +1240,3 @@ int MainWindow::sendJSON(string KEY, string data){
     ::close(fd);
 
 }*/
-
-

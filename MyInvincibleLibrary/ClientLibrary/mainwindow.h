@@ -45,6 +45,10 @@ public:
     string decimalToHex(int d);
     string BMPtoBinaryData(string directory);
 
+    string hexDataToBMP(string name, string hexData);
+
+    int hexToDecimal(string h);
+
     int sendJSON(json_object *jObj);
     //int sendJSON(string KEY, string data);
 
@@ -62,6 +66,10 @@ private slots:
     void on_BotonCommit_clicked();
 
     void on_BotonIniciar_clicked();
+
+    void on_BotonGal_Delete_clicked();
+
+    void on_BotonLink_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -86,7 +94,7 @@ private:
     json_object *jObj;
 
     ///Keys SENDJSON
-    QString nombreGaleria, newImage, console, iniciar, rollBack, commit;
+    QString nombreGaleria, newImage, console, iniciar, rollBack, commit,selectImageHexa;
 
     ///Keys para completar la tabla de comandos
     QString NombreS,AutorS,YearS,SizeS,DescripcionS,FileIDS;
